@@ -7,7 +7,7 @@ import path from "path";
 
 const ogDescription = "Lecture site Template";
 const ogImage = "/assets/image/logo.png";
-const ogTitle = "Lecture Template Project";
+const ogTitle = "ISUCON初心者向け講習会"
 const ogUrl = "https://vitepress-lecture-template.trap.show/";
 
 // https://vitepress.dev/reference/site-config
