@@ -2,9 +2,9 @@
 layout: home
 
 hero:
-    name: "template"
-    text: "test template"
-    tagline: "講習会資料テンプレート"
+    name: ""
+    text: "ISUCON初心者向け講習会"
+    tagline: "ISUCON初心者向け講習会用のテキストです。"
     image:
         alt: "logo" #トップページに表示される画像です
         src: /assets/image/logo.png
@@ -17,10 +17,10 @@ hero:
           link: /text/chapter-0/technical_support/tech_1.md
 
 features: #トップページに並んでいるボタンです。コピペで使ってください。
-    - title: 0. 基本的な使い方について
-      details: このテンプレートについての説明
+    - title: 0. この講習会について + ISUCONについて
+      details: ISUCONって何？この講習会の対象者、目標、心構え
       link: /text/chapter-0/index.md
-    - title: 1. 具体的な使い方
+    - title: 1. 競技本番までに準備しておいた方が良い事
       details: このテンプレートについての使い方
       link: /text/chapter-1/index.md
     - title: 2. 機能の具体例
