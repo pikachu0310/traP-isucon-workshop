@@ -1,0 +1,128 @@
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+@layer base {}
+
+:root {
+    /* light theme */
+    --background: theme(colors.light-back-primary);
+    --background-effect: theme(colors.light-back-secondary);
+    --background-effect-light: #f9f9fa;
+    --background-effect-dark: theme(colors.light-back-tertiary);
+    --vp-c-base: theme(colors.primary-900);
+    --vp-c-base-light: theme(colors.primary-700);
+    --vp-c-base-lighter: theme(colors.primary-600);
+    --vp-c-base-dark: #004786;
+    --vp-c-base-darker: #003d71;
+    --vp-c-text-light-1: theme(colors.light-text-primary);
+    --vp-c-text-light-2: theme(colors.light-text-primary/75%);
+    --vp-c-text-light-3: theme(colors.light-back-primary/33%);
+    --vp-c-text-dark-1: theme(colors.dark-text-primary/86%);
+    --vp-c-text-dark-2: theme(colors.dark-text-primary/60%);
+    --vp-c-text-dark-3: theme(colors.dark-text-primary/38%);
+    --ui-line: theme(colors.stone.800/26%);
+    --ui-line-fade: theme(colors.stone.800/12%);
+
+    /* raw setting */
+    --vp-c-bg: var(--background);
+
+    --vp-c-bg-elv: var(--background);
+    --vp-c-bg-elv-up: var(--background);
+    --vp-c-bg-elv-down: var(--background-effect);
+    --vp-c-bg-elv-mute: var(--background-effect);
+
+    --vp-c-bg-soft: var(--background-effect);
+    --vp-c-bg-soft-up: var(--background-effect-effect);
+    --vp-c-bg-soft-down: var(--background-effect-dark);
+    --vp-c-bg-soft-mute: var(--background-effect-dark);
+
+    --vp-c-bg-alt: var(--background-effect);
+
+    --vp-c-border: var(--ui-line);
+    --vp-c-divider: var(--ui-line-fade);
+    --vp-c-gutter: var(--ui-line-fade);
+
+    --vp-c-neutral: var(--vp-c-black);
+    --vp-c-neutral-inverse: var(--vp-c-white);
+
+    --vp-c-text-1: var(--vp-c-text-light-1);
+    --vp-c-text-2: var(--vp-c-text-light-2);
+    --vp-c-text-3: var(--vp-c-text-light-3);
+
+    --vp-c-text-inverse-1: var(--vp-c-text-dark-1);
+    --vp-c-text-inverse-2: var(--vp-c-text-dark-2);
+    --vp-c-text-inverse-3: var(--vp-c-text-dark-3);
+
+    --vp-c-text-code: #49535B;
+
+    --vp-c-brand: var(--vp-c-base);
+    --vp-c-brand-light: var(--vp-c-base-light);
+    --vp-c-brand-lighter: var(--vp-c-base-lighter);
+    --vp-c-brand-dark: var(--vp-c-base-dark);
+    --vp-c-brand-darker: var(--vp-c-base-darker);
+
+    --vp-c-mute: var(--background-effect);
+    --vp-c-mute-light: #f9f9fc;
+    --vp-c-mute-lighter: var(--background);
+    --vp-c-mute-dark: var(--background-effect-dark);
+    --vp-c-mute-darker: #d7d7d9;
+}
+
+.dark {
+
+    /* dark theme */
+    --background: theme(colors.dark-back-primary);
+    --background-effect: theme(colors.dark-back-secondary);
+    --background-effect-light: theme(colors.dark-back-tertiary);
+    --ui-line: theme(colors.stone.300/68%);
+    --ui-line-fade: theme(colors.stone.300/32%);
+    --vp-c-base: theme(colors.primary-600);
+    --vp-c-base-light: theme(colors.primary-500);
+    --vp-c-base-lighter: theme(colors.primary-400);
+    --vp-c-base-dark: theme(colors.primary-800);
+    --vp-c-base-darker: theme(colors.primary-900);
+
+    /* raw setting */
+
+    --vp-c-bg: var(--background);
+
+    --vp-c-bg-elv: var(--background-effect);
+    --vp-c-bg-elv-up: var(--background-effect-light);
+    --vp-c-bg-elv-down: var(--background);
+    --vp-c-bg-elv-mute: var(--background-effect-light);
+
+    --vp-c-bg-soft: var(--background-effect);
+    --vp-c-bg-soft-up: var(--background-effect-light);
+    --vp-c-bg-soft-down: var(--background);
+    --vp-c-bg-soft-mute: var(--background-effect-light);
+
+    --vp-c-bg-alt: var(--background-effect);
+
+    --vp-c-border: var(--ui-line);
+    --vp-c-divider: var(--ui-line-fade);
+    --vp-c-gutter: var(--ui-line-fade);
+
+    --vp-c-neutral: var(--vp-c-white);
+    --vp-c-neutral-inverse: var(--vp-c-black);
+
+    --vp-c-text-1: var(--vp-c-text-dark-1);
+    --vp-c-text-2: var(--vp-c-text-dark-2);
+    --vp-c-text-3: var(--vp-c-text-dark-3);
+
+    --vp-c-text-inverse-1: var(--vp-c-text-light-1);
+    --vp-c-text-inverse-2: var(--vp-c-text-light-2);
+    --vp-c-text-inverse-3: var(--vp-c-text-light-3);
+
+    --vp-c-text-code: #c9def1;
+
+    --vp-c-brand: var(--vp-c-base);
+
+    --vp-c-mute: var(--background-effect-light);
+    --vp-c-mute-light: #3a3a3c;
+    --vp-c-mute-lighter: #505053;
+    --vp-c-mute-dark: #2c2c30;
+    --vp-c-mute-darker: var(--background-effect);
+}
