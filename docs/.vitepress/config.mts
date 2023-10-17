@@ -5,7 +5,7 @@ const containerMdExtend = require("./plugins/md/index.js");
 import fs from "fs";
 import path from "path";
 
-const ogDescription = "Lecture site Template";
+const ogDescription = "ISUCON workshop for beginners in traP";
 const ogImage = "/assets/image/logo.png";
 const ogTitle = "ISUCON初心者向け講習会"
 const ogUrl = "https://vitepress-lecture-template.trap.show/";
