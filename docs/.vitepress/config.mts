@@ -88,10 +88,23 @@ function generateSidebar(
             if (subDirItems.length > 0) {
                 // 優先フォルダかどうかを判定し、対応する配列にアイテムを追加
                 if (file.indexOf(priorityFolder) > -1) {
-                    priorityItems.push({
-                        text: file,
-                        items: subDirItems,
-                    });
+                    if (file=="chapter-0"){
+                        priorityItems.push({
+                            text: "はじめに",
+                            items: subDirItems,
+                        });
+                    }else if(file=="chapter-1"){
+                        priorityItems.push({
+                            text: "ISUCONの基礎知識",
+                            items: subDirItems,
+                        });
+                    }
+                    else{
+                        priorityItems.push({
+                            text: file,
+                            items: subDirItems,
+                        });
+                    }
                 } else {
                     normalItems.push({
                         text: file,
