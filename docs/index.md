@@ -25,6 +25,6 @@ features: #トップページに並んでいるボタンです。コピペで使
       link: /text/chapter-1/1-IsuconKnowledge.md
     - title: 2. 実習編-実際にPISCONで手を動かす
       details: ツールの導入方法や具体的な扱い方など
-      link: /text/chapter-2/1-.md
+      link: /text/chapter-2/1-MakeInstanceAndRunBenchmark.md
 
 ---

@@ -2,11 +2,11 @@
 
 ## ログイン
 [PISCON Portal](https://piscon.trap.jp) を開き、右上にある`Signin with traQ`からログインしてください。  
-![1-img/img.png](1-img/img.png)
+![./1-img/img.png](1-img/img.png)
 
 ## チームの作成
 ログインしたら、サイドバーから[`TeamInfo`](https://piscon.trap.jp/team)を開き、自分のチーム名を入力して作成してください。
-![1-img/img_1.png](1-img/img_1.png)
+![./1-img/img_1.png](1-img/img_1.png)
 :::warning WARNING チーム名は間違えないように！
 チーム名は1文字でも違うと別のチームとして認識されます！絶対に間違えないように、コピペ推奨です！  
 万が一間違えてしまった場合は #event/workshop/piscon/sodan に @cp20 をつけて連絡してください。
@@ -17,14 +17,14 @@
 
 ## インスタンスの作成
 チームを作成したら、[以下の画面](https://piscon.trap.jp/team)になると思います。
-<img src="1-img/img_2.png" width="50%">
+<img src="./1-img/img_2.png" width="50%">
 下にスクロールして、インスタンスを作成してください。簡単に言うとサーバーの作成です。  
 立ち上がるまで1~2分かかります。
-![1-img/img_3.png](1-img/img_3.png)
+![./1-img/img_3.png](1-img/img_3.png)
 
 ## 初期状態でのベンチマークの実行
 インスタンスが立ち上がったら、ベンチマークを回しましょう！
-![1-img/img_4.png](1-img/img_4.png)
+![./1-img/img_4.png](1-img/img_4.png)
 1回のベンチマークにかかる時間は、1分です。(どのISUCONでも基本的に1分だと思います。)  
 
 この1分の間に、ベンチマーカーがチームのサーバーに対して大量のリクエストを送り、凄い負荷をかけ、レスポンスからスコアを算出して返すわけですね。
