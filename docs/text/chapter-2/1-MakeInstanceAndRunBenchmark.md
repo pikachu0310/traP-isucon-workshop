@@ -1,4 +1,4 @@
-# インスタンスを作成し、ベンチマークを回そう！
+# ポータルの使い方を知ろう
 
 ## ログイン
 [PISCON Portal](https://piscon.trap.jp) を開き、右上にある`Signin with traQ`からログインしてください。  
