@@ -79,7 +79,7 @@ pt-query-digest --version
 最後の`pt-query-digest --version`でバージョンが表示されれば成功です。  
 `pt-query-digest`は、スロークエリログを解析して、どのクエリが遅いのかをいい感じに表示して教えてくれるツールです。
 
-## 実際に計測する！
+## 実際に計測し、スロークエリログを解析する
 
 まずは、再度ベンチマークを回してスロークエリログを取得しましょう。  
 `{"pass":true,"score":2110,"campaign":0,"language":"Go","messages":[]}`
@@ -245,130 +245,6 @@ SELECT * FROM `categories` WHERE `id` = 5\G
 #    SHOW CREATE TABLE `isucari`.`items`\G
 # EXPLAIN /*!50100 PARTITIONS*/
 SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND (`created_at` < '2019-08-12 15:48:55'  OR (`created_at` <= '2019-08-12 15:48:55' AND `id` < 49728)) ORDER BY `created_at` DESC, `id` DESC LIMIT 49\G
-
-# Query 5: 2.69 QPS, 0.28x concurrency, ID 0x6D959E4C28C709C1312243B842F41381 at byte 260396339
-# This item is included in the report because it matches --limit.
-# Scores: V/M = 0.05
-# Time range: 2023-10-20T10:24:52 to 2023-10-20T10:25:54
-# Attribute    pct   total     min     max     avg     95%  stddev  median
-# ============ === ======= ======= ======= ======= ======= ======= =======
-# Count          0     167
-# Exec time      8     17s    26ms   310ms   104ms   230ms    70ms    78ms
-# Lock time      0    10ms    24us     2ms    62us   176us   157us    28us
-# Rows sent      1   4.33k       0      49   26.57   46.83   22.62   46.83
-# Rows examine  20   7.97M  48.83k  48.91k  48.87k  46.68k       0  46.68k
-# Query size     0  23.10k     140     142  141.63  136.99       0  136.99
-# String:
-# Databases    isucari
-# Hosts        localhost
-# Users        isucari
-# Query_time distribution
-#   1us
-#  10us
-# 100us
-#   1ms
-#  10ms  ################################################################
-# 100ms  ###############################################
-#    1s
-#  10s+
-# Tables
-#    SHOW TABLE STATUS FROM `isucari` LIKE 'items'\G
-#    SHOW CREATE TABLE `isucari`.`items`\G
-# EXPLAIN /*!50100 PARTITIONS*/
-SELECT * FROM `items` WHERE `seller_id` = 2760 AND `status` IN ('on_sale','trading','sold_out') ORDER BY `created_at` DESC, `id` DESC LIMIT 49\G
-
-# Query 6: 836.98 QPS, 0.22x concurrency, ID 0x396201721CD58410E070DA9421CA8C8D at byte 302936203
-# This item is included in the report because it matches --limit.
-# Scores: V/M = 0.01
-# Time range: 2023-10-20T10:24:52 to 2023-10-20T10:25:55
-# Attribute    pct   total     min     max     avg     95%  stddev  median
-# ============ === ======= ======= ======= ======= ======= ======= =======
-# Count          9   52730
-# Exec time      6     14s    50us   405ms   257us   725us     2ms    93us
-# Lock time     22      2s    10us    20ms    34us    66us   186us    17us
-# Rows sent     22  51.49k       1       1       1       1       0       1
-# Rows examine   0  51.49k       1       1       1       1       0       1
-# Query size     0   1.95M      36      39   38.72   38.53    0.80   38.53
-# String:
-# Databases    isucari
-# Hosts        localhost
-# Users        isucari
-# Query_time distribution
-#   1us
-#  10us  ################################################################
-# 100us  #####################################################
-#   1ms  ###
-#  10ms  #
-# 100ms  #
-#    1s
-#  10s+
-# Tables
-#    SHOW TABLE STATUS FROM `isucari` LIKE 'users'\G
-#    SHOW CREATE TABLE `isucari`.`users`\G
-# EXPLAIN /*!50100 PARTITIONS*/
-SELECT * FROM `users` WHERE `id` = 2404\G
-
-# Query 7: 1.87 QPS, 0.20x concurrency, ID 0x528C15CEBCCFADFD36DB5799406088D9 at byte 267655714
-# This item is included in the report because it matches --limit.
-# Scores: V/M = 0.06
-# Time range: 2023-10-20T10:24:52 to 2023-10-20T10:25:54
-# Attribute    pct   total     min     max     avg     95%  stddev  median
-# ============ === ======= ======= ======= ======= ======= ======= =======
-# Count          0     116
-# Exec time      6     13s    25ms   324ms   109ms   279ms    80ms    73ms
-# Lock time      0     6ms    32us   251us    53us   185us    47us    36us
-# Rows sent      1   3.74k      15      49   33.03   46.83   15.14   46.83
-# Rows examine  14   5.54M  48.85k  48.91k  48.88k  46.68k       0  46.68k
-# Query size     0  27.78k     243     246  245.26  234.30       0  234.30
-# String:
-# Databases    isucari
-# Hosts        localhost
-# Users        isucari
-# Query_time distribution
-#   1us
-#  10us
-# 100us
-#   1ms
-#  10ms  ################################################################
-# 100ms  #####################################
-#    1s
-#  10s+
-# Tables
-#    SHOW TABLE STATUS FROM `isucari` LIKE 'items'\G
-#    SHOW CREATE TABLE `isucari`.`items`\G
-# EXPLAIN /*!50100 PARTITIONS*/
-SELECT * FROM `items` WHERE `seller_id` = 197 AND `status` IN ('on_sale','trading','sold_out') AND (`created_at` < '2019-08-12 04:07:03'  OR (`created_at` <= '2019-08-12 04:07:03' AND `id` < 7622)) ORDER BY `created_at` DESC, `id` DESC LIMIT 49\G
-
-# Query 8: 1.73 QPS, 0.14x concurrency, ID 0x6688844580F541EC2C1B6BE83F13FC2B at byte 265771118
-# This item is included in the report because it matches --limit.
-# Scores: V/M = 0.03
-# Time range: 2023-10-20T10:24:52 to 2023-10-20T10:25:54
-# Attribute    pct   total     min     max     avg     95%  stddev  median
-# ============ === ======= ======= ======= ======= ======= ======= =======
-# Count          0     107
-# Exec time      4      9s    30ms   325ms    80ms   163ms    50ms    68ms
-# Lock time      0     6ms    25us   428us    52us   138us    67us    30us
-# Rows sent      0     977       4      11    9.13   10.84    2.29   10.84
-# Rows examine  13   5.11M  48.84k  48.87k  48.86k  46.68k       0  46.68k
-# Query size     0  18.82k     177     181  180.12  174.84    0.00  174.84
-# String:
-# Databases    isucari
-# Hosts        localhost
-# Users        isucari
-# Query_time distribution
-#   1us
-#  10us
-# 100us
-#   1ms
-#  10ms  ################################################################
-# 100ms  ##########################
-#    1s
-#  10s+
-# Tables
-#    SHOW TABLE STATUS FROM `isucari` LIKE 'items'\G
-#    SHOW CREATE TABLE `isucari`.`items`\G
-# EXPLAIN /*!50100 PARTITIONS*/
-SELECT * FROM `items` WHERE (`seller_id` = 2404 OR `buyer_id` = 2404) AND `status` IN ('on_sale','trading','sold_out','cancel','stop') ORDER BY `created_at` DESC, `id` DESC LIMIT 11\G
 ```
 :::
 先ほどの`pt-query-digest`の出力結果は、以下のような一つのクエリの分析結果が、繰り返される形で構成されています。以下は`Query 1`の分析結果です。
@@ -406,6 +282,27 @@ SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND category_id I
 ```
 長々と書いてありますが、一番見るべきところは、7, 8 行目の`total`の部分です。  
 7 行目の`total`である`688`という数字は、そのクエリが呼び出された回数です。  
-8 行目の`total`である`46s`は、そのクエリの実行時間の合計です。
+8 行目の`total`である`46s`は、そのクエリの実行時間の合計です。  
+全てのクエリの合計時間が`203s`なので、このクエリだけで全体の`23%`も占めてる。  
 
-今ここを書いています。
+## スロークエリログの解析結果から改善する
+ISUCONの一番最初の改善として多いのが、「Indexを貼る」です。  
+Indexとは、テーブルへの処理を高速化するためのデータ構造の事で、データベーステーブルのすべての行を検索しなくても、検索条件に合致する行を高速に取得できます。  
+```mysql
+ALTER TABLE `items` ADD INDEX idx_status_category_created_id (`status`, `category_id`, `created_at`, `id`);
+```
+
+## ADMIN PREPARE
+
+```shell
+# Profile
+# Rank Query ID                            Response time Calls  R/Call V/M
+# ==== =================================== ============= ====== ====== ===
+#    1 0x5AF10ED6AD345D4B930FF1E60F9B9ED6  46.2205 22.8%    688 0.0672  0.05 SELECT items
+#    2 0xDA556F9115773A1A99AA0165670CE848  26.9822 13.3% 176569 0.0002  0.01 ADMIN PREPARE
+#    3 0xE1FCE50427E80F4FD12C53668328DB0D  24.9174 12.3% 115017 0.0002  0.00 SELECT categories
+#    4 0x534F6185E0A0C71693761CC3349B416F  20.6844 10.2%    117 0.1768  0.04 SELECT items
+#    5 0x6D959E4C28C709C1312243B842F41381  17.4278  8.6%    167 0.1044  0.05 SELECT items
+```
+
+`ADMIN PREPARE`というクエリが、`26.9822`秒もかかっているのが分かります。
