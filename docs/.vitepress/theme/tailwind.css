@@ -19,7 +19,7 @@
     --vp-c-base-darker: #003d71;
     --vp-c-text-light-1: theme(colors.light-text-primary);
     --vp-c-text-light-2: theme(colors.light-text-primary/75%);
-    --vp-c-text-light-3: theme(colors.light-back-primary/33%);
+    --vp-c-text-light-3: theme(colors.light-text-primary/33%);
     --vp-c-text-dark-1: theme(colors.dark-text-primary/86%);
     --vp-c-text-dark-2: theme(colors.dark-text-primary/60%);
     --vp-c-text-dark-3: theme(colors.dark-text-primary/38%);
