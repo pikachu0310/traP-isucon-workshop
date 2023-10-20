@@ -6,14 +6,14 @@
 ```shell
 ssh isucon@000.00.000.000 # サーバーに接続(数字はサーバーのIPアドレスに置き換えて)
 ls -la # ディレクトリ内のファイル一覧を表示
-cd ~ # ディレクトリ移動
+cd directory # ディレクトリ移動
 pwd # 現在のディレクトリを表示
 mkdir directory # ディレクトリ作成
 nano file.txt # ファイルを作成/編集
 cat file.txt # ファイルの中身を表示
 mv file.txt directory # ファイル移動
 rm directory/file.txt # ファイル削除
-rm directory -r # ディレクトリ削除
+rm -r directory # ディレクトリ削除
 ```
 
 :::details Linuxコマンド慣れるのにオススメなゲームや教材
