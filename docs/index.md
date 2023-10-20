@@ -20,8 +20,11 @@ features: #トップページに並んでいるボタンです。コピペで使
     - title: 0. この講習会について + ISUCONについて
       details: ISUCONって何？この講習会の対象者、目標、心構え
       link: /text/chapter-0/index.md
-    - title: 1. 競技本番までに準備しておいた方が良い事
-      details: このテンプレートについての使い方
-      link: /text/chapter-1/index.md
+    - title: 1. 座学編-ISUCONの基礎知識
+      details: ISUCONの重要な知識は全部ココに！
+      link: /text/chapter-1/1-IsuconKnowledge.md
+    - title: 2. 実習編-実際にPISCONで手を動かす
+      details: ツールの導入方法や具体的な扱い方など
+      link: /text/chapter-2/1-.md
 
 ---
