@@ -154,13 +154,59 @@ sudo nginx -t
 sudo systemctl reload nginx
 ```
 :::
-:::details ベンチマークの前に回すコマンド
+:::details pprofとfgprofの導入
+```shell
+sudo apt update
+sudo apt install graphviz
+```
+```go
+package main
+
+import (
+	_ "net/http/pprof" // [!code ++]
+	_ "github.com/felixge/fgprof" // [!code ++]
+)
+```
+次に、`main.go` の `main()` 関数の先頭に、次の3行を書き加えます。
+```go
+func main() {
+    // http.DefaultServeMux.Handle("/debug/fgprof/profile", fgprof.Handler()) // [!code ++]
+	go func() { // [!code ++]
+		log.Println(http.ListenAndServe(":6060", nil)) // [!code ++]
+	}() // [!code ++]
+
+	// 後略
+}
+```
+:::
+:::details fgprofの導入
+```go
+package main
+
+import _ "github.com/felixge/fgprof" // [!code ++]
+```
+次に、`main.go` の `main()` 関数の先頭に、次の3行を書き加えます。
+```go
+func main() {
+	go func() { // [!code ++]
+		log.Println(http.ListenAndServe("localhost:6060", nil)) // [!code ++]
+	}() // [!code ++]
+
+	// 後略
+}
+```
+:::
+:::details ベンチマークの前や後、ベンチマーク中に回すコマンド
 ```shell
 cd ~/isucari && git pull
 cd ~/isucari/webapp/go && make isucari && sudo systemctl restart isucari.golang.service
-mkdir ~/isucari/log
 sudo pt-query-digest /var/log/mysql/mysql-slow.log > ~/isucari/log/$(date +mysql-slow.log-%m-%d-%H-%M -d "+9 hours") && sudo rm /var/log/mysql/mysql-slow.log && sudo systemctl restart mysql
 sudo cat /var/log/nginx/access.log | alp ltsv -m "/users/\d+.json","/items/\d+.json","/new_items/\d+.json","/upload/.+.jpg","/transactions/\d+.png" --sort sum -r > ~/isucari/log/$(date +access.log-%m-%d-%H-%M -d "+9 hours") && sudo rm /var/log/nginx/access.log && sudo nginx -t && sudo systemctl reload nginx
 ```
+```shell
+go tool pprof http://localhost:6060/debug/pprof/profile?seconds=60
+ssh -L 6070:localhost:6070 isucon9
+go tool pprof -http=localhost:6070 /home/isucon/pprof/pprof.isucari.samples.cpu.001.pb.gz
+cd ~/isucari/log
+```
 :::
-
