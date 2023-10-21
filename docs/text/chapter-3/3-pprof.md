@@ -153,7 +153,7 @@ pprof-check:
 ## (ネタバレ) 今回のケースは特別で、`getTransactions`のボトルネックはpprofでは計測できない
 今回は、pprofを見ると、`alp`で1番ボトルネックだった`getTransactions`が、全然ボトルネックに見えません。  
 これが今回のひっかけで、pprofはCPUの使用時間を記録しているのですが、実は`getTransactions`で起こっているのは、CPUを使わない「待機」だったのです。
-ではどう計測すればよかったのかというと、`fgprof`というツールを使います。これはpprofの逆で、CPUが使われていない時間を記録します。  
+ではどう計測すればよかったのかというと、`fgprof`というツールを使います。これはpprofとは違い、待機を含む実世界の時間全てを記録できます。  
 [fgprof](https://github.com/felixge/fgprof)  
 導入方法は以下の通りにしてください。  
 https://github.com/pikachu0310/isucon-workshop-2023/compare/2710...2610  
