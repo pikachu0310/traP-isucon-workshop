@@ -1,17 +1,12 @@
-# 本格的な計測の準備をしよう
+# スロークエリログ(Slow Query Log)
+スロークエリログを解析することで、実行に時間がかかっているクエリを見つけ出します。
 
-本格的に計測用のツールを導入して、計測を行う準備をします。
-:::tip 計測はログを出力する分、パフォーマンスが落ちる
-計測は非常に有用で必須ですが、ログを取る分余分に処理が走るので、パフォーマンスが落ち、スコアが少し下がります。  
-なので、競技の終わりが近づいてきてガチで点数を狙いに行くときに、全てのログをオフにするなどをするのが一般的です。
-:::
-
-## スロークエリログ(Slow Query Log)の設定
+## スロークエリログの設定
 
 MySQLには実行時間が長いSQLクエリを記録するスロークエリログ機能があり、これはボトルネックの特定に役立ちます。  
 しかし、デフォルトではこの機能はOFFです。  スロークエリログをONにするには、MySQLの設定ファイル(`/etc/mysql/mysql.conf.d/mysqld.cnf`)を直接編集します。  
 設定ファイルを表示するには、サーバー上で`cat /etc/mysql/mysql.conf.d/mysqld.cnf`を実行します。
-```{2,3,4}
+```:line-numbers=75{2,3,4}
 # Here you can see queries with especially long duration
 #slow_query_log         = 1
 #slow_query_log_file    = /var/log/mysql/mysql-slow.log
@@ -21,7 +16,7 @@ MySQLには実行時間が長いSQLクエリを記録するスロークエリロ
 とても長いファイルですが、76, 77, 78 行目にスロークエリの設定があります。  
 76, 77, 78 行目の先頭にある`#`を削除し、`long_query_time`を`0`に変更します。  
 `sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf`で書き換えましょう。(`vim`でも大丈夫です。)
-```{2,3,4}
+```:line-numbers=75{2,3,4}
 # Here you can see queries with especially long duration
 slow_query_log         = 1
 slow_query_log_file    = /var/log/mysql/mysql-slow.log
@@ -76,7 +71,7 @@ tar zxvf v3.5.5.tar.gz
 sudo install ./percona-toolkit-3.5.5/bin/pt-query-digest /usr/local/bin
 pt-query-digest --version
 ```
-最後の`pt-query-digest --version`でバージョンが表示されれば成功です。  
+最後の`pt-query-digest --version`でバージョンが表示されれば成功です！  
 `pt-query-digest`は、スロークエリログを解析して、どのクエリが遅いのかをいい感じに表示して教えてくれるツールです。
 
 ## 実際に計測し、スロークエリログを解析する
@@ -84,6 +79,10 @@ pt-query-digest --version
 まずは、再度ベンチマークを回してスロークエリログを取得しましょう。  
 `{"pass":true,"score":2110,"campaign":0,"language":"Go","messages":[]}`
 ログを取っている分少しだけスコアが下がりましたね。  
+:::tip 計測はログを出力する分、パフォーマンスが落ちる
+計測は非常に有用で必須ですが、ログを取る分余分に処理が走るので、パフォーマンスが落ち、スコアが少し下がります。  
+なので、競技の終わりが近づいてきてガチで点数を狙いに行くときに、全てのログをオフにするなどをするのが一般的です。
+:::
 では、以下のコマンドを実行して、`pt-query-digest`でスロークエリログを解析してみましょう。
 ```shell
 pt-query-digest /var/log/mysql/mysql-slow.log
@@ -247,7 +246,40 @@ SELECT * FROM `categories` WHERE `id` = 5\G
 SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND (`created_at` < '2019-08-12 15:48:55'  OR (`created_at` <= '2019-08-12 15:48:55' AND `id` < 49728)) ORDER BY `created_at` DESC, `id` DESC LIMIT 49\G
 ```
 :::
-先ほどの`pt-query-digest`の出力結果は、以下のような一つのクエリの分析結果が、繰り返される形で構成されています。以下は`Query 1`の分析結果です。
+## ログローテーションについて
+次回ベンチマークを実行時、ログファイルは新しく生成されるのではなく、既存のログファイルに追記されてしまいます。  
+各ベンチマークのログで解析したい競技中は、毎回のベンチマークでログファイルを削除や移動することで、ログファイルを再生成させるということをします。  
+スロークエリログの場合は、解析した結果をどこかへ保存しておいて、生ログは消してしまう人が多いと思います。  
+解析した結果を`~/log`に保存し、生のログファイルを削除するには、以下のコマンドを実行します。
+```shell
+mkdir ~/log && pt-query-digest /var/log/mysql/mysql-slow.log --output ~/log/$(date +mysql-slow.log-%m-%d-%H-%M -d "+9 hours")
+sudo rm /var/log/mysql/mysql-slow.log
+```
+これを毎回ベンチマークを回すときに手動でやると、面倒だし忘れるので、シェルスクリプト等を用いて自動化すると良いでしょう。
+
+## スロークエリログの解析結果のまとめを見る
+ログの最初の方に、以下のような結果が表示されています。
+```
+# Profile
+# Rank Query ID                            Response time Calls  R/Call V/M
+# ==== =================================== ============= ====== ====== ===
+#    1 0x5AF10ED6AD345D4B930FF1E60F9B9ED6  46.2205 22.8%    688 0.0672  0.05 SELECT items
+#    2 0xDA556F9115773A1A99AA0165670CE848  26.9822 13.3% 176569 0.0002  0.01 ADMIN PREPARE
+#    3 0xE1FCE50427E80F4FD12C53668328DB0D  24.9174 12.3% 115017 0.0002  0.00 SELECT categories
+#    4 0x534F6185E0A0C71693761CC3349B416F  20.6844 10.2%    117 0.1768  0.04 SELECT items
+#    5 0x6D959E4C28C709C1312243B842F41381  17.4278  8.6%    167 0.1044  0.05 SELECT items
+#    6 0x396201721CD58410E070DA9421CA8C8D  13.5860  6.7%  52730 0.0003  0.01 SELECT users
+```
+これは、スロークエリログの中で実行時間が長い順にクエリを並べ、簡潔にまとめたものです。  
+主に重要な情報は3つで、`Response time`, `Calls`, `SELECT items`です。1番上のクエリを例に見てみましょう。  
+`Response time`の`46.2205`が実行時間で、全体の実行時間の`22.8%`を占めています。  
+`Calls`の`688`がこのクエリが実行された回数です。  
+最後の`SELECT items`が、実際に実行されたクエリの概要で、このクエリは`items`テーブルからデータを取得するクエリだと分かります。  
+このクエリだけで全体の`22.8%`を占めているので、このクエリを改善することで、全体のパフォーマンスも向上しそうですね。  
+また、`Calls`は`688`とそこまで多くないのに、時間がかかっていることから、1回のクエリの実行時間が長いことが分かりますね。    
+
+## 1クエリの詳細を見る
+先ほどの`pt-query-digest`の出力結果の後半部分は、以下のような一つのクエリの分析結果が、繰り返される形で構成されています。以下は`Query 1`の分析結果です。
 ```
 # Query 1: 11.10 QPS, 0.75x concurrency, ID 0x5AF10ED6AD345D4B930FF1E60F9B9ED6 at byte 266611062
 # This item is included in the report because it matches --limit.
@@ -258,14 +290,14 @@ SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND (`created_at`
 # Count          0     688 // [!code hl]
 # Exec time     22     46s     8ms   427ms    67ms   180ms    58ms    44ms // [!code hl]
 # Lock time      0    67ms    31us    17ms    98us   176us   684us    36us
-# Rows sent     14  32.92k      49      49      49      49       0      49
-# Rows examine  24   9.37M   3.84k  48.90k  13.95k  46.68k  15.13k   6.96k
+# Rows sent     14  32.92k      49      49      49      49       0      49 // [!code hl]
+# Rows examine  24   9.37M   3.84k  48.90k  13.95k  46.68k  15.13k   6.96k // [!code hl]
 # Query size     0 169.83k     248     257  252.77  246.02       0  246.02
 # String:
 # Databases    isucari
 # Hosts        localhost
 # Users        isucari
-# Query_time distribution
+# Query_time distribution // [!code hl]
 #   1us
 #  10us
 # 100us
@@ -276,20 +308,86 @@ SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND (`created_at`
 #  10s+
 # Tables
 #    SHOW TABLE STATUS FROM `isucari` LIKE 'items'\G
-#    SHOW CREATE TABLE `isucari`.`items`\G
-# EXPLAIN /*!50100 PARTITIONS*/
-SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND category_id IN (21, 22, 23, 24) AND (`created_at` < '2019-08-12 15:27:55'  OR (`created_at` <= '2019-08-12 15:27:55' AND `id` < 48470)) ORDER BY `created_at` DESC, `id` DESC LIMIT 49\G
+#    SHOW CREATE TABLE `isucari`.`items`\G　 // [!code hl]
+# EXPLAIN /*!50100 PARTITIONS*/　 // [!code hl]
+SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND category_id IN (21, 22, 23, 24) AND (`created_at` < '2019-08-12 15:27:55'  OR (`created_at` <= '2019-08-12 15:27:55' AND `id` < 48470)) ORDER BY `created_at` DESC, `id` DESC LIMIT 49\G　 // [!code hl]
 ```
-長々と書いてありますが、一番見るべきところは、7, 8 行目の`total`の部分です。  
-7 行目の`total`である`688`という数字は、そのクエリが呼び出された回数です。  
-8 行目の`total`である`46s`は、そのクエリの実行時間の合計です。  
-全てのクエリの合計時間が`203s`なので、このクエリだけで全体の`23%`も占めてる。  
+長々と書いてありますが、7, 8 行目の`total`の部分に先ほど見たまとめと同じ情報があります。  
+
+ここで重要なのは、`Rows examine`です。これは、クエリに対してレスポンスを返すまでに**走査した行数のことです。**  
+データーベース君は、求められた条件にマッチする値を返すために、テーブルの行を順番に見ていきます。この**走査した行数** とは、クエリを実行する際に、どれだけの行を見たかということです。  
+`Rows examine`が多いということは、データーベース君がたくさんの行を見ているということです。たくさんの行を見るということは、それだけ時間がかかります。  
+
+対して`Rows sent`は、クエリに対してレスポンスとして返した実際の行数です。つまり、`Rows examine`が`Rows sent`の値に近い程効率よく処理ができているということになります。  
+今回の例を見てみると、900万行も走査しているのに、3万行しか返していないことが分かります。絶望的に効率が悪いですね。  
+
+データーベースには、この`Rows examine`を極力少なくするために、**Index**というテーブルへの処理を高速化するためのデータ構造が用意されています。これを活用することで改善できそうです。  
+
+また、最後らへんの行には、実際に実行されたクエリの例や、クエリに関する情報を集めるのに役立つコマンドが書かれています。`MySQL`の基本的なコマンドも少し書いておきます。
+```shell
+mysql -u isucari -pisucari
+SHOW CREATE TABLE `isucari`.`items`\G
+SHOW databases; # データベース一覧を表示(基本コマンド)
+USE isucari; # データーベースを選択(基本コマンド)
+SHOW tables; # テーブル一覧を表示(基本コマンド)
+EXPLAIN /*!50100 PARTITIONS*/ SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND category_id IN (21, 22, 23, 24) AND (`created_at` < '2019-08-12 15:27:55'  OR (`created_at` <= '2019-08-12 15:27:55' AND `id` < 48470)) ORDER BY `created_at`  24) AND (`created_at` < '2019-08-12 15:27:55'  OR (`created_at` <= '2019-08-12 15:27:55' AND `id` < 48470)) ORDER BY `created_at` DESC, DESC, `id` DESC LIMIT 49\G
+```
+:::details `SHOW CREATE TABLE `isucari`.`items`\G`出力結果
+```
+mysql> SHOW CREATE TABLE `isucari`.`items`\G
+*************************** 1. row ***************************
+       Table: items
+Create Table: CREATE TABLE `items` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `seller_id` bigint(20) NOT NULL,
+  `buyer_id` bigint(20) NOT NULL DEFAULT '0',
+  `status` enum('on_sale','trading','sold_out','stop','cancel') NOT NULL,
+  `name` varchar(191) NOT NULL,
+  `price` int(10) unsigned NOT NULL,
+  `description` text NOT NULL,
+  `image_name` varchar(191) NOT NULL,
+  `category_id` int(10) unsigned NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_category_id` (`category_id`),
+) ENGINE=InnoDB AUTO_INCREMENT=50034 DEFAULT CHARSET=utf8mb4
+1 row in set (0.00 sec)
+```
+:::
+上記の出力で、注目するべきは、`KEY`の行です。`KEY`の行には、テーブルに貼られているIndexの情報が書かれています。  
+`idx_category_id`という名前のIndexが貼られていることが分かります。このIndexは、`category_id`というカラムに貼られているIndexですね。
+:::details `EXPLAIN ...`出力結果
+```
+mysql> EXPLAIN /*!50100 PARTITIONS*/ SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND category_id IN (21, 22, 23, 24) AND (`created_at` < '2019-08-12 15:27:55'  OR (`created_at` <= '2019-08-12 15:27:55' AND `id` < 48470)) ORDER BY `created_at`  24) AND (`created_at` < '2019-08-12 15:27:55'  OR (`created_at` <= '2019-08-12 15:27:55' AND `id` < 48470)) ORDER BY `created_at` DESC, DESC, `id` DESC LIMIT 49\G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: items
+   partitions: NULL
+         type: range
+possible_keys: PRIMARY,idx_category_id
+          key: idx_category_id
+      key_len: 18
+          ref: NULL
+         rows: 8227
+     filtered: 100.00
+        Extra: Using index condition; Using filesort
+1 row in set, 2 warnings (0.00 sec)
+```
+:::
+上記の出力で、注目するべきは、`key`の行です。`key`の行には、クエリを実行する際に、どのIndexを使っているかが書かれています。  
+また、さらに重要なのは、`Extra`の行です。`Extra`の行には、クエリを実行する際に、どのような処理をしているかが書かれています。  
+ここでは、`Using index condition; Using filesort`と書いてありますね。`Using index condition`は、Indexを使っているということです。  
+`Using filesort`は、`Index`を使用せずに結果をソートする必要がある場合に表示されます。つまり、何らかの影響で`Index`が使えていない箇所があるということです！これが遅い原因です！
 
 ## スロークエリログの解析結果から改善する
-ISUCONの一番最初の改善として多いのが、「Indexを貼る」です。  
-Indexとは、テーブルへの処理を高速化するためのデータ構造の事で、データベーステーブルのすべての行を検索しなくても、検索条件に合致する行を高速に取得できます。  
+ISUCONの一番最初の改善として多いのが、「`Index`を貼る」です。  
+先ほどの説明の通り、`Index`とは、テーブルへの処理を高速化するためのデータ構造の事で、`Index`を用いることでデータベーステーブルのすべての行を検索しなくても、検索条件に合致する行を高速に取得できるようになります。  
+
 ```mysql
 ALTER TABLE `items` ADD INDEX idx_status_category_created_id (`status`, `category_id`, `created_at`, `id`);
+EXPLAIN /*!50100 PARTITIONS*/　SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND category_id IN (21, 22, 23, 24) AND (`created_at` < '2019-08-12 15:27:55'  OR (`created_at` <= '2019-08-12 15:27:55' AND `id` < 48470)) ORDER BY `created_at` DESC, `id` DESC LIMIT 49\G
 ```
 
 ## ADMIN PREPARE
