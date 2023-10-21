@@ -247,14 +247,20 @@ SELECT * FROM `categories` WHERE `id` = 5\G
 SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND (`created_at` < '2019-08-12 15:48:55'  OR (`created_at` <= '2019-08-12 15:48:55' AND `id` < 49728)) ORDER BY `created_at` DESC, `id` DESC LIMIT 49\G
 ```
 :::
+:::tip
+今回、initializeのinsert文が出力されてしまって面倒なので、以下のようにして2000文字以下のクエリのみをカウントするとスッキリします。
+```shell
+sudo pt-query-digest --filter 'length($$event->{arg}) <= 2000' /var/log/mysql/mysql-slow.log
+```
+:::
 ## ログローテーションについて
 次回ベンチマークを実行時、ログファイルは新しく生成されるのではなく、既存のログファイルに追記されてしまいます。  
 各ベンチマークのログで解析したい競技中は、毎回のベンチマークでログファイルを削除や移動することで、ログファイルを再生成させるということをします。  
 スロークエリログの場合は、解析した結果をどこかへ保存しておいて、生ログは消してしまう人が多いと思います。  
-解析した結果を`~/log`に保存し、生のログファイルを削除するには、以下のコマンドを実行します。
+解析した結果を`~/isucari/log`に保存し、生のログファイルを削除するには、以下のコマンドを実行します。
 ```shell
 mkdir ~/isucari/log 
-pt-query-digest /var/log/mysql/mysql-slow.log > ~/isucari/log/$(date +mysql-slow.log-%m-%d-%H-%M -d "+9 hours")
+sudo pt-query-digest /var/log/mysql/mysql-slow.log > ~/isucari/log/$(date +mysql-slow.log-%m-%d-%H-%M -d "+9 hours")
 sudo rm /var/log/mysql/mysql-slow.log
 ```
 これを毎回ベンチマークを回すときに手動でやると、面倒だし忘れるので、シェルスクリプト等を用いて自動化すると良いでしょう。
