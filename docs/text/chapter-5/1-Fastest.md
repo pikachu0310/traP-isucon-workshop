@@ -7,7 +7,6 @@ gitメアド: "pikachu13711@gmail.com"
 gitユーザーネーム: "pikachu0310"
 gitリポジトリ名: "isucon-workshop-2023summer"
 ```
-
 `https://piscon.trap.jp/team`でインスタンスを立てる。  
 :::details サーバーの接続設定
 ローカルPC上で以下のコマンドを実行。
@@ -20,10 +19,10 @@ Host isucon9-1
   User isucon
 EOL
 cat ~/.ssh/id_ed25519.pub
+ssh isucon@18.183.138.50
 ```
 サーバー上で以下のコマンドを実行。
 ```shell
-ssh isucon@18.183.138.50
 cd ~ && mkdir .ssh && chmod 744 ~/.ssh/
 echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO3aFsxQ60hI/ZFy5vJ+N6C0ONFBkfoQXz2PuTMK+poi" >> .ssh/authorized_keys
 :::
@@ -73,7 +72,7 @@ git init
 git add webapp/README.md webapp/go webapp/sql webapp/docs
 git commit -m ":tada: Initial commit"
 git branch -M main
-git remote add origin git@github.com:pikachu0310/isucon-workshop-2023summer.git
+git remote add origin git@github.com:pikachu0310/isucon-workshop-2023.git
 git push -u origin main
 ```
 :::
@@ -156,10 +155,12 @@ sudo systemctl reload nginx
 ```
 :::
 :::details ベンチマークの前に回すコマンド
+```shell
 cd ~/isucari && git pull
 cd ~/isucari/webapp/go && make isucari && sudo systemctl restart isucari.golang.service
 mkdir ~/isucari/log
 sudo pt-query-digest /var/log/mysql/mysql-slow.log > ~/isucari/log/$(date +mysql-slow.log-%m-%d-%H-%M -d "+9 hours") && sudo rm /var/log/mysql/mysql-slow.log && sudo systemctl restart mysql
 sudo cat /var/log/nginx/access.log | alp ltsv -m "/users/\d+.json","/items/\d+.json","/new_items/\d+.json","/upload/.+.jpg","/transactions/\d+.png" --sort sum -r > ~/isucari/log/$(date +access.log-%m-%d-%H-%M -d "+9 hours") && sudo rm /var/log/nginx/access.log && sudo nginx -t && sudo systemctl reload nginx
+```
 :::
 
