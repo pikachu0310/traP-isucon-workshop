@@ -64,7 +64,8 @@ mysql> show variables like 'slow%';
 今回は`pt-query-digest`というツールを使います。  
 以下のコマンドを実行して、`pt-query-digest`をインストールしましょう。
 ```shell
-mkdir ~/tools && cd ~/tools
+mkdir ~/tools
+cd ~/tools
 wget https://github.com/percona/percona-toolkit/archive/refs/tags/v3.5.5.tar.gz
 tar zxvf v3.5.5.tar.gz
 ./percona-toolkit-3.5.5/bin/pt-query-digest --version
@@ -252,7 +253,8 @@ SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND (`created_at`
 スロークエリログの場合は、解析した結果をどこかへ保存しておいて、生ログは消してしまう人が多いと思います。  
 解析した結果を`~/log`に保存し、生のログファイルを削除するには、以下のコマンドを実行します。
 ```shell
-mkdir ~/log && pt-query-digest /var/log/mysql/mysql-slow.log --output ~/log/$(date +mysql-slow.log-%m-%d-%H-%M -d "+9 hours")
+mkdir ~/isucari/log 
+pt-query-digest /var/log/mysql/mysql-slow.log > ~/isucari/log/$(date +mysql-slow.log-%m-%d-%H-%M -d "+9 hours")
 sudo rm /var/log/mysql/mysql-slow.log
 ```
 これを毎回ベンチマークを回すときに手動でやると、面倒だし忘れるので、シェルスクリプト等を用いて自動化すると良いでしょう。
