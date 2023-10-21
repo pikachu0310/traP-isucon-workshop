@@ -159,17 +159,18 @@ pprof-check:
 https://github.com/pikachu0310/isucon-workshop-2023/compare/2710...2610  
 扱い方は`pprof`とほとんど同じで、以下のようにして計測します。  
 `go tool pprof http://localhost:6060/debug/fgprof/profile?seconds=60`
-`go tool pprof -http=localhost:6070 /home/isucon/pprof/pprof.samples.cpu.001.pb.gz`
+`go tool pprof -http=localhost:6070 /home/isucon/pprof/pprof.samples.cpu.001.pb.gz`  
 fgprofのページを開いたら、左上から`VIEW`を選らび、`Flame Graph`を選びましょう。待機時間をカウントしてるので、関係ない奴が多数あります。ここでは、`http.(*conn).serve`をクリックしてください。  
 ![](4-img/img.png)
 ![](4-img/img-2.png)
 `main.getTransactions`が2/3を占めています！`VIEW`から`Top`を選び、`main.getTransactions`をクリックし、`VIEW`から`Source`を選びましょう。  
-`http://localhost:6070/ui/source?f=main%5C.getTransactions`このリンクからでも行けると思います。  
+http://localhost:6070/ui/source?f=main%5C.getTransactions このリンクからでも行けると思います。  
 `getTransactions`のソースコードが表示され、各行でどのくらいの時間がかかっているかが表示されました。  
 ![](4-img/img-3.png)
 一番時間がかかっている場所を探すと、993行目に`8.37mins`という、目を疑う単位が書いてあります。  
-`ssr, err := APIShipmentStatus(getShipmentServiceURL(), &APIShipmentStatusReq{ `の部分です。  
-さらに`APIShipmentStatus`の中身を見てみましょう`http://localhost:6070/ui/source?f=main%5C.APIShipmentStatus`。  
+`ssr, err := APIShipmentStatus(...`の部分です。  
+さらに`APIShipmentStatus`の中身を見てみましょう。  
+http://localhost:6070/ui/source?f=main%5C.APIShipmentStatus  
 `res, err := http.DefaultClient.Do(req)`という箇所がボトルネックだと発見できると思います。  
 これで`getTransactions`が遅い原因がようやく特定できました！  
 これは具体的には、ベンチマーカーに対してリクエストを送り、レスポンスが返ってくるまで待機するということが行われています。  
