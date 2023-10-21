@@ -107,10 +107,10 @@ sudo apt install graphviz
 ```
 
 次のコマンドで、サーバー上の `localhost:6070` で可視化Webサーバーを立ち上げましょう。
-`/home/isucon/pprof/pprof.samples.cpu.001.pb.gz` の部分を、可視化したい計測結果のファイル名に置き換えてください。
+`/home/isucon/pprof/pprof.isucari.samples.cpu.001.pb.gz` の部分を、可視化したい計測結果のファイル名に置き換えてください。
 
 ```shell
-go tool pprof -http=localhost:6070 /home/isucon/pprof/pprof.samples.cpu.001.pb.gz
+go tool pprof -http=localhost:6070 /home/isucon/pprof/pprof.isucari.samples.cpu.001.pb.gz
 ```
 
 手元のブラウザで `http://localhost:6070` にアクセスして、「pprof」のページが表示されれば成功です。
