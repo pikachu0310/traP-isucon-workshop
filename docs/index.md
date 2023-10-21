@@ -29,5 +29,8 @@ features: #トップページに並んでいるボタンです。コピペで使
     - title: 3. 実習編-本格的に計測、改善をする
       details: 各種ツールの導入方法や具体的な解析方法、そして実際に改善し、スコアを上げる。
       link: /text/chapter-3/0-Github.md
+    - title: 5. メモや有用なリンクとか
+      details: 遊び場 なんか追加したいことあればPRでどうぞ。
+      link: /text/chapter-5/1-Fastest.md
 
 ---
