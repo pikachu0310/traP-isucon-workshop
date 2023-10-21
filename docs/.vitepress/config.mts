@@ -105,6 +105,11 @@ function generateSidebar(
               text: '実習編-PISCONで実践してみる',
               items: subDirItems,
             })
+          } else if (file == 'chapter-3') {
+            priorityItems.push({
+              text: '実習編-本格的に計測,改善する',
+              items: subDirItems,
+            })
           } else {
             priorityItems.push({
               text: file,
