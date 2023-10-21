@@ -396,11 +396,10 @@ ISUCONの一番最初の改善として多いのが、「`Index`を貼る」で�
 ```mysql
 ALTER TABLE `items` ADD INDEX idx_status_category_created_id (`status`, `category_id`, `created_at`, `id`);
 ```
-https://github.com/pikachu0310/isucon-workshop-2023summer/commit/b9ee111994d18f6b6f9f8a7067f262614f37569e
-
+https://github.com/pikachu0310/isucon-workshop-2023/commit/25285db714c8a40934ae2d55a6f6034603fc2549
 ## ADMIN PREPARE
 2番目に、ADMIN PREPARE というクエリがあって、遅くなっていました。
-```shell
+```
 # Profile
 # Rank Query ID                            Response time Calls  R/Call V/M
 # ==== =================================== ============= ====== ====== ===
@@ -411,5 +410,82 @@ https://github.com/pikachu0310/isucon-workshop-2023summer/commit/b9ee111994d18f6
 #    5 0x6D959E4C28C709C1312243B842F41381  17.4278  8.6%    167 0.1044  0.05 SELECT items
 ```
 `ADMIN PREPARE`というクエリが、`26.9822`秒もかかっているのが分かります。
-これは典型問題で、以下の様にすることで改善できます。
-https://github.com/pikachu0310/isucon-workshop-2023summer/commit/9cee98b4042046f07ff6b9065b67562c7c506448
+これは典型問題で、以下の様に`&interpolateParams=true`というパラメータを追加することで改善できます。
+https://github.com/pikachu0310/isucon-workshop-2023/commit/953cfb75069903f9b4e5882337c317eb249bd7cd
+:::tip 参考
+[MySQL :: MySQL 8.0 リファレンスマニュアル :: 13.5 プリペアドステートメント](https://dev.mysql.com/doc/refman/8.0/ja/sql-prepared-statements.html)  
+[go-sql-driver#interpolateparams](https://github.com/go-sql-driver/mysql#interpolateparams)
+:::
+
+## 再度計測してみる
+再びログローテーションをした後に計測をしてみると、以下のようになりました。
+```
+# Rank Query ID                            Response time Calls  R/Call V/M
+# ==== =================================== ============= ====== ====== ===
+#    1 0xE1FCE50427E80F4FD12C53668328DB0D  32.1162 21.3% 152077 0.0002  0.00 SELECT categories
+#    2 0x5AF10ED6AD345D4B930FF1E60F9B9ED6  25.3081 16.8%    998 0.0254  0.06 SELECT items
+#    3 0x6D959E4C28C709C1312243B842F41381  17.5491 11.6%    180 0.0975  0.06 SELECT items
+#    4 0x396201721CD58410E070DA9421CA8C8D  16.9213 11.2%  71323 0.0002  0.00 SELECT users
+#    5 0x534F6185E0A0C71693761CC3349B416F  16.1589 10.7%    117 0.1381  0.07 SELECT items
+```
+`ADMIN PREPARE`が消えて、先ほど1位だった`SELECT items`が少し改善され2位になり、今度は`SELECT categories`が1番遅くなっていることが分かります。  
+:::details Query1
+```
+# Query 1: 2.45k QPS, 0.52x concurrency, ID 0xE1FCE50427E80F4FD12C53668328DB0D at byte 130021867
+# This item is included in the report because it matches --limit.
+# Scores: V/M = 0.00
+# Time range: 2023-10-21T12:08:02 to 2023-10-21T12:09:04
+# Attribute    pct   total     min     max     avg     95%  stddev  median
+# ============ === ======= ======= ======= ======= ======= ======= =======
+# Count         64  152077
+# Exec time     21     32s    54us    47ms   211us   626us   500us    89us
+# Lock time     55      8s    15us    47ms    50us   119us   224us    28us
+# Rows sent     48 148.51k       1       1       1       1       0       1
+# Rows examine   0 148.51k       1       1       1       1       0       1
+# Query size     4   6.08M      41      42   41.89   40.45       0   40.45
+# String:
+# Databases    isucari
+# Hosts        localhost
+# Users        isucari
+# Query_time distribution
+#   1us
+#  10us  ################################################################
+# 100us  #####################################################
+#   1ms  ##
+#  10ms  #
+# 100ms
+#    1s
+#  10s+
+# Tables
+#    SHOW TABLE STATUS FROM `isucari` LIKE 'categories'\G
+#    SHOW CREATE TABLE `isucari`.`categories`\G
+# EXPLAIN /*!50100 PARTITIONS*/
+SELECT * FROM `categories` WHERE `id` = 65\G
+```
+:::
+今回1位になった`SELECT categories`を`EXPLAIN`してみると、以下のようになります。
+```
+mysql> EXPLAIN /*!50100 PARTITIONS*/
+    -> SELECT * FROM `categories` WHERE `id` = 65\G
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: categories
+   partitions: NULL
+         type: const
+possible_keys: PRIMARY
+          key: PRIMARY
+      key_len: 4
+          ref: const
+         rows: 1
+     filtered: 100.00
+        Extra: NULL
+1 row in set, 2 warnings (0.01 sec)
+```
+`key`の行に`PRIMARY`と書いてあり、`Extra`の行に`NULL`と書いてあります。  
+`Rows sent`と`Rows examine`が同じ値で、`key`の行にデフォルトのINDEXである`PRIMARY`と書いてあることから、`Index`が使われていることが分かります。  
+つまり、このクエリは十分高速です。しかし`Count`が`152077`とめちゃくちゃ多いことから、アプリケーション側の問題そうです。  
+`Count`がめちゃくちゃ多いクエリは、アプリケーション側でN+1問題が起きていることが多いです。  
+
+アプリケーションを触る必要がありそうなので、とりあえずデーターベースの改善はこれ位にして、アプリケーション側の改善に移るために、次のアクセスログの章でアクセスログを解析してみましょう。
+
