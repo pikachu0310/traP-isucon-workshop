@@ -85,6 +85,9 @@ cat README.md
 
 ### .gitignore に追加する。
 注意点として、でかいファイルがあれば、`.gitignore`に追加しましょう。まずは`go`の中身を確認します。  
+:::tip
+`du -d 1 -h`というコマンドを使うと、大きいファイルに気が付きやすい
+:::
 ```shell
 cd ~/isucari/webapp/go
 ls -la
