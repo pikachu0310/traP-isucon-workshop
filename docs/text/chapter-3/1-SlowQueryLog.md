@@ -386,14 +386,16 @@ possible_keys: PRIMARY,idx_category_id
 ## スロークエリログの解析結果から改善する
 ISUCONの一番最初の改善として多いのが、「`Index`を貼る」です。  
 先ほどの説明の通り、`Index`とは、テーブルへの処理を高速化するためのデータ構造の事で、`Index`を用いることでデータベーステーブルのすべての行を検索しなくても、検索条件に合致する行を高速に取得できるようになります。  
-
+今回は、毎回ベンチマークが実行されるたびに`webapp/sql/01_schema.sql`の中のSQL文が実行されるので、ここに`Index`を貼る`SQL文を追加しましょう。
 ```mysql
 ALTER TABLE `items` ADD INDEX idx_status_category_created_id (`status`, `category_id`, `created_at`, `id`);
-EXPLAIN /*!50100 PARTITIONS*/　SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND category_id IN (21, 22, 23, 24) AND (`created_at` < '2019-08-12 15:27:55'  OR (`created_at` <= '2019-08-12 15:27:55' AND `id` < 48470)) ORDER BY `created_at` DESC, `id` DESC LIMIT 49\G
 ```
+また、`EXPLAIN`の結果を見ると、`Using filesort`という文字列が出ているので、`ORDER BY`の部分も改善できそうです。  
+これらを踏まえると、以下の様に改善できます。  
+https://github.com/pikachu0310/isucon-workshop-2023summer/commit/b9ee111994d18f6b6f9f8a7067f262614f37569e
 
 ## ADMIN PREPARE
-
+2番目に、ADMIN PREPARE というクエリがあって、遅くなっていました。
 ```shell
 # Profile
 # Rank Query ID                            Response time Calls  R/Call V/M
@@ -404,5 +406,6 @@ EXPLAIN /*!50100 PARTITIONS*/　SELECT * FROM `items` WHERE `status` IN ('on_sal
 #    4 0x534F6185E0A0C71693761CC3349B416F  20.6844 10.2%    117 0.1768  0.04 SELECT items
 #    5 0x6D959E4C28C709C1312243B842F41381  17.4278  8.6%    167 0.1044  0.05 SELECT items
 ```
-
 `ADMIN PREPARE`というクエリが、`26.9822`秒もかかっているのが分かります。
+これは典型問題で、以下の様にすることで改善できます。
+https://github.com/pikachu0310/isucon-workshop-2023summer/commit/9cee98b4042046f07ff6b9065b67562c7c506448
