@@ -18,13 +18,16 @@ hero:
 
 features: #トップページに並んでいるボタンです。コピペで使ってください。
     - title: 0. この講習会について + ISUCONについて
-      details: ISUCONって何？この講習会の対象者、目標、心構え
+      details: ISUCONについて知り、この講習会の対象者や目標、心構えを知る。
       link: /text/chapter-0/index.md
     - title: 1. 座学編-ISUCONの基礎知識
-      details: ISUCONの重要な知識は全部ココに！
+      details: ISUCONに関する重要な知識を学ぶ。
       link: /text/chapter-1/1-IsuconKnowledge.md
-    - title: 2. 実習編-実際にPISCONで手を動かす
-      details: ツールの導入方法や具体的な扱い方など
+    - title: 2. 実習編-ISUCONを始めてみる
+      details: ポータルを扱い、インスタンスを立て、サーバーに入り、ベンチマーカーを回し、Webアプリにアクセスする。
       link: /text/chapter-2/1-MakeInstanceAndRunBenchmark.md
+    - title: 3. 実習編-本格的に計測、改善をする
+      details: 各種ツールの導入方法や具体的な解析方法、そして実際に改善し、スコアを上げる。
+      link: /text/chapter-3/0-Github.md
 
 ---

@@ -15,6 +15,7 @@ mv file.txt directory # ファイル移動
 rm directory/file.txt # ファイル削除
 rm -r directory # ディレクトリ削除
 ```
+今回は、コマンドでファイルの編集を沢山行うので、ファイルの編集はできるようにしておきましょう。
 
 :::details Linuxコマンド慣れるのにオススメなゲームや教材
 #### [Hacknet | Steam](https://store.steampowered.com/app/365450/Hacknet/?l=japanese)
