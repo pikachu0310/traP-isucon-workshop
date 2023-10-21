@@ -1,4 +1,4 @@
-# スロークエリログ(Slow Query Log)
+# スロークエリログ (pt-query-digest)
 スロークエリログを解析することで、実行に時間がかかっているクエリを見つけ出します。
 
 ## スロークエリログの設定
@@ -396,8 +396,6 @@ ISUCONの一番最初の改善として多いのが、「`Index`を貼る」で�
 ```mysql
 ALTER TABLE `items` ADD INDEX idx_status_category_created_id (`status`, `category_id`, `created_at`, `id`);
 ```
-また、`EXPLAIN`の結果を見ると、`Using filesort`という文字列が出ているので、`ORDER BY`の部分も改善できそうです。  
-これらを踏まえると、以下の様に改善できます。  
 https://github.com/pikachu0310/isucon-workshop-2023summer/commit/b9ee111994d18f6b6f9f8a7067f262614f37569e
 
 ## ADMIN PREPARE

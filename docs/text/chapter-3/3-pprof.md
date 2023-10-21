@@ -49,9 +49,8 @@ git push
 
 まず、サーバー上のGitリポジトリのルートで、`git pull` を行い、ソースコードの変更をサーバー上のファイルに反映させます。
 
-<!-- TODO: 正しいリポジトリルートに直して -->
 ```shell
-cd ~/isucon
+cd ~/isucari
 git pull
 ```
 
@@ -59,15 +58,14 @@ git pull
 
 <!-- TODO: 正しいディレクトリとバイナリ名が分からないので書いて -->
 ```shell
-cd ~/isucon/go
-go build -o isucari .
+cd ~/isucon/webapp/go
+make isucari
 ```
 
 最後に、アプリケーションを再起動して、変更を反映させましょう。
 
-<!-- TODO: 正しいunit名が分からないので書いて -->
 ```shell
-sudo systemctl restart isucari.go
+sudo systemctl restart isucari.golang.service
 ```
 
 ## アプリケーションの計測

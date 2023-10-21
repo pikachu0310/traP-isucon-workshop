@@ -37,7 +37,7 @@ ls && cat id_ed25519.pub
 ここでは、例として@pikachuの公開鍵`ssh-ed25519 AAAAC(省略)K+poi`を追加してみます。
 以下のコマンドはサーバーで実行してください。
 ```shell
-cd ~ && mkdir .ssh
+cd ~ && mkdir ~/.ssh && chmod 744 ~/.ssh
 echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO3aFsxQ60hI/ZFy5vJ+N6C0ONFBkfoQXz2PuTMK+poi" >> .ssh/authorized_keys
 ```
 これで、`ssh isucon@xx.xxx.xxx.xxx`でパスワードを入力せずに接続できるようになりました。
