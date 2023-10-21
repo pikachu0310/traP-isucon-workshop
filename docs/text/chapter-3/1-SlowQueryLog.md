@@ -86,7 +86,7 @@ pt-query-digest --version
 :::
 では、以下のコマンドを実行して、`pt-query-digest`でスロークエリログを解析してみましょう。
 ```shell
-pt-query-digest /var/log/mysql/mysql-slow.log
+sudo pt-query-digest /var/log/mysql/mysql-slow.log
 ```
 :::details 出力結果の一部
 ```
