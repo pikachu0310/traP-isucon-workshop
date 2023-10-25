@@ -338,7 +338,7 @@ SHOW CREATE TABLE `isucari`.`items`\G
 SHOW databases; # データベース一覧を表示(基本コマンド)
 USE isucari; # データーベースを選択(基本コマンド)
 SHOW tables; # テーブル一覧を表示(基本コマンド)
-EXPLAIN /*!50100 PARTITIONS*/ SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND category_id IN (21, 22, 23, 24) AND (`created_at` < '2019-08-12 15:27:55'  OR (`created_at` <= '2019-08-12 15:27:55' AND `id` < 48470)) ORDER BY `created_at`  24) AND (`created_at` < '2019-08-12 15:27:55'  OR (`created_at` <= '2019-08-12 15:27:55' AND `id` < 48470)) ORDER BY `created_at` DESC, DESC, `id` DESC LIMIT 49\G
+EXPLAIN /*!50100 PARTITIONS*/ SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND category_id IN (21, 22, 23, 24) AND (`created_at` < '2019-08-12 15:27:55'  OR (`created_at` <= '2019-08-12 15:27:55' AND `id` < 48470)) ORDER BY `created_at` DESC, `id` DESC LIMIT 49\G  // [!code hl]
 ```
 :::details `SHOW CREATE TABLE `isucari`.`items`\G`出力結果
 ```
@@ -367,7 +367,7 @@ Create Table: CREATE TABLE `items` (
 `idx_category_id`という名前のIndexが貼られていることが分かります。このIndexは、`category_id`というカラムに貼られているIndexですね。
 :::details `EXPLAIN ...`出力結果
 ```
-mysql> EXPLAIN /*!50100 PARTITIONS*/ SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND category_id IN (21, 22, 23, 24) AND (`created_at` < '2019-08-12 15:27:55'  OR (`created_at` <= '2019-08-12 15:27:55' AND `id` < 48470)) ORDER BY `created_at`  24) AND (`created_at` < '2019-08-12 15:27:55'  OR (`created_at` <= '2019-08-12 15:27:55' AND `id` < 48470)) ORDER BY `created_at` DESC, DESC, `id` DESC LIMIT 49\G
+mysql> EXPLAIN /*!50100 PARTITIONS*/ SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND category_id IN (21, 22, 23, 24) AND (`created_at` < '2019-08-12 15:27:55'  OR (`created_at` <= '2019-08-12 15:27:55' AND `id` < 48470)) ORDER BY `created_at` DESC, `id` DESC LIMIT 49\G
 *************************** 1. row ***************************
            id: 1
   select_type: SIMPLE
@@ -392,11 +392,21 @@ possible_keys: PRIMARY,idx_category_id
 ## スロークエリログの解析結果から改善する
 ISUCONの一番最初の改善として多いのが、「`Index`を貼る」です。  
 先ほどの説明の通り、`Index`とは、テーブルへの処理を高速化するためのデータ構造の事で、`Index`を用いることでデータベーステーブルのすべての行を検索しなくても、検索条件に合致する行を高速に取得できるようになります。  
+参考: [Index](https://dev.mysql.com/doc/refman/8.0/en/optimization-indexes.html)  
+このクエリをよく見てみると、  
+``SELECT * FROM `items` WHERE `status` IN ('on_sale','sold_out') AND category_id IN (21, 22, 23, 24) AND (`created_at` < '2019-08-12 15:27:55'  OR (`created_at` <= '2019-08-12 15:27:55' AND `id` < 48470)) ORDER BY `created_at` DESC, `id` DESC LIMIT 49\G``  
+というクエリで、`category_id`は調べてみると高々50個位しかないため、今回は``(`created_at`, `id`)``に対して複合Indexを貼るのが有効そうです。  
+参考: [複合Index](https://dev.mysql.com/doc/refman/8.0/en/multiple-column-indexes.html)
+それでは、`('created_at','id')`に対して複合Indexを貼ってみましょう。
+
 今回は、毎回ベンチマークが実行されるたびに`webapp/sql/01_schema.sql`の中のSQL文が実行されるので、ここに`Index`を貼る`SQL文を追加しましょう。
+``ALTER TABLE `items` ADD INDEX idx_created_at_id (`created_at`, `id`)``を`webapp/sql/01_schema.sql`の末尾に追加しましょう。
 ```mysql
-ALTER TABLE `items` ADD INDEX idx_status_category_created_id (`status`, `category_id`, `created_at`, `id`);
+ALTER TABLE `items` ADD INDEX idx_created_at_id (`created_at`, `id`);
 ```
-https://github.com/pikachu0310/isucon-workshop-2023/commit/25285db714c8a40934ae2d55a6f6034603fc2549
+これである程度は改善できたはずです。計測をしてみましょう。  
+おそらくスコアが500点程上がると思います。
+
 ## ADMIN PREPARE
 2番目に、ADMIN PREPARE というクエリがあって、遅くなっていました。
 ```
