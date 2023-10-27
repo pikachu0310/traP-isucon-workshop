@@ -164,32 +164,15 @@ package main
 
 import (
 	_ "net/http/pprof" // [!code ++]
-	_ "github.com/felixge/fgprof" // [!code ++]
+	"github.com/felixge/fgprof" // [!code ++]
 )
 ```
 次に、`main.go` の `main()` 関数の先頭に、次の3行を書き加えます。
 ```go
 func main() {
-    // http.DefaultServeMux.Handle("/debug/fgprof/profile", fgprof.Handler()) // [!code ++]
+	http.DefaultServeMux.Handle("/debug/fgprof", fgprof.Handler()) // [!code ++]
 	go func() { // [!code ++]
 		log.Println(http.ListenAndServe(":6060", nil)) // [!code ++]
-	}() // [!code ++]
-
-	// 後略
-}
-```
-:::
-:::details fgprofの導入
-```go
-package main
-
-import _ "github.com/felixge/fgprof" // [!code ++]
-```
-次に、`main.go` の `main()` 関数の先頭に、次の3行を書き加えます。
-```go
-func main() {
-	go func() { // [!code ++]
-		log.Println(http.ListenAndServe("localhost:6060", nil)) // [!code ++]
 	}() // [!code ++]
 
 	// 後略
