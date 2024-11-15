@@ -52,16 +52,11 @@ ISUCON本番ではチーム数が莫大なので、各チームに対してベ�
 ## ベンチマークの結果を見てみよう
 ![](1-img/img_5.png)
 結果を見てみましょう。
-```json
-{
-   "pass":false, // ベンチマークが成功したかどうか
-   "score":0, // スコア
-   "campaign":0, // TODO
-   "language":"", // 使用言語
-   "messages":[ // ベンチマークの実行中に出力されたメッセージ
-      "POST /initialize: リクエストに失敗しました"
-   ]
-}
+```text
+15:00:42.745373 ===> PREPARE 
+15:00:58.009663 ERR: prepare: critical: initializeに失敗しました 
+15:00:58.009779 ERR: prepare: http: Post "http://192.168.0.11/initialize": dial tcp 192.168.0.11:80: connect: connection refused
+(省略)
 ```
 どうやら、ベンチマークが成功しなかったようです。この状況をfailしたとか言います。  
 `messages`を見ると、`POST /initialize`のリクエストが失敗したためfailしてしまったようです。  
@@ -69,7 +64,7 @@ ISUCON本番ではチーム数が莫大なので、各チームに対してベ�
 今回のPISCONでは諸事情により少し設定をしなければなりません。次の章で一緒に設定をしましょう。
 :::info
 今回、インスタンスを作成しただけでは、nginxがSSL/TLSを無効な証明書を使って行おうとするため、ベンチマーカーを実行できません。  
-それを回避するために`/etc/nginx/sites-available/isucari.conf`を次のように書き換える必要があります。  
+それを回避するために`/etc/nginx/sites-available/isucondition.conf`を次のように書き換える必要があります。書き換え方は次の章で説明します。  
 [PISCONマニュアルページより](https://piscon.trap.jp/manual)
 :::
 
