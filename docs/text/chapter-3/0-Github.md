@@ -56,32 +56,49 @@ Title は何でも良いです。
 ```shell
 ssh -T git@github.com 
 ```
-`Hi pikachu0310/isucon-workshop-2023summer! You've successfully authenticated, but GitHub does not provide shell access.`と帰ってきたら成功です。
+`Hi pikachu0310/PISCON2024-ISUCON11! You've successfully authenticated, but GitHub does not provide shell access.`と帰ってきたら成功です。
 
 ## 必要な物を GitHub にアップロードする
 ### どれをアップロードするかを決める
-基本的に`~/isucari/webapp/`にアプリケーションが入っているので、そこを GitHub にアップロードします。  
-`~/isucari/webapp/`の中身を見てみましょう。
+基本的に`~/webapp`にアプリケーションが入っているので、そこを GitHub にアップロードします。  
+`~/webapp`の中身を見てみましょう。
 ```shell
-cd ~/isucari/webapp/
-cat README.md
+cd ~/webapp
+ls -lahg
 ```
 ```
-アプリケーションのディレクトリ構成は以下のようになっています。
-
-/home/isucon/isucari/webapp/
-├── docs      # アプリケーションおよび外部サービスについてのドキュメント
+total 64K
+drwxrwxr-x 12 isucon 4.0K Apr 28  2022 .
+drwxr-xr-x 18 isucon 4.0K Nov 15 16:16 ..
+-rw-rw-r--  1 isucon   20 Apr 28  2022 .gitignore
+-rw-rw-r--  1 isucon 6.9K Apr 28  2022 NoImage.jpg
+-rw-rw-r--  1 isucon  178 Apr 28  2022 ec256-public.pem
+drwxrwxr-x  4 isucon 4.0K Apr 28  2022 frontend
+drwxrwxr-x  2 isucon 4.0K Apr 28  2022 go
+drwxrwxr-x  5 isucon 4.0K Apr 28  2022 nodejs
+drwxrwxr-x  3 isucon 4.0K Apr 28  2022 perl
+drwxrwxr-x  7 isucon 4.0K Apr 28  2022 php
+drwxrwxr-x  3 isucon 4.0K Apr 28  2022 public
+drwxrwxr-x  2 isucon 4.0K Apr 28  2022 python
+drwxrwxr-x  3 isucon 4.0K Apr 28  2022 ruby
+drwxrwxr-x  4 isucon 4.0K Apr 28  2022 rust
+drwxrwxr-x  2 isucon 4.0K Apr 28  2022 sql
+```
+これを見ると、大体以下のようになっていそうです。
+```
+/home/isucon/webapp/
 ├── frontend  # フロントエンドのソースコード
 ├── go        # Go実装
 ├── nodejs    # Node.js実装
 ├── perl      # Perl実装
 ├── php       # PHP実装
+├── public    # jsやcss、画像データ等の静的ファイル
 ├── python    # Python実装
 ├── ruby      # Ruby実装
-├── public    # jsやcss、画像データ等の静的ファイル
+├── rust      # Rust実装
 └── sql       # データベースのスキーマおよび初期化に必要なSQL
 ```
-主に改善に使うのは`go`と`sql`だと思うので、ドキュメントも合わせて`docs`と`go`と`sql`を GitHub にアップロードします。  
+主に改善に使うのは`go`と`sql`だと思うので、と`go`と`sql`を GitHub にアップロードします。  
 
 ### .gitignore に追加する。
 注意点として、でかいファイルがあれば、`.gitignore`に追加しましょう。まずは`go`の中身を確認します。  
@@ -89,36 +106,27 @@ cat README.md
 `du -d 1 -h`というコマンドを使うと、大きいファイルに気が付きやすい
 :::
 ```shell
-cd ~/isucari/webapp/go
-ls -la
+cd ~/webapp/go
+ls -lahg
 ```
 ```
-isucon@ip-172-31-36-11:~/isucari/webapp/go$ ls -la
-total 12220
-drwxr-xr-x  2 isucon isucon     4096 Oct 20 12:47 .
-drwxr-xr-x 12 isucon isucon     4096 Apr 29  2021 ..
--rw-r--r--  1 isucon isucon       72 Apr 29  2021 Makefile
--rw-r--r--  1 isucon isucon     4689 Apr 29  2021 api.go
--rw-r--r--  1 isucon isucon      265 Apr 29  2021 go.mod
--rw-r--r--  1 isucon isucon     1844 Apr 29  2021 go.sum
--rwxr-xr-x  1 isucon isucon 12420019 Apr 29  2021 isucari
--rw-r--r--  1 isucon isucon    60810 Oct 20 12:47 main.go
+isucon@ip-192-168-0-11:~/webapp/go$ ls -lahg
+total 9.5M
+drwxrwxr-x  2 isucon 4.0K Apr 28  2022 .
+drwxrwxr-x 12 isucon 4.0K Apr 28  2022 ..
+-rw-rw-r--  1 isucon   13 Apr 28  2022 .gitignore
+-rw-rw-r--  1 isucon  372 Apr 28  2022 go.mod
+-rw-rw-r--  1 isucon 5.7K Apr 28  2022 go.sum
+-rwxrwxr-x  1 isucon 9.4M Apr 28  2022 isucondition
+-rw-rw-r--  1 isucon  35K Apr 28  2022 main.go
 ```
-`isucari`というファイルがバイナリファイルで`12420019`と容量がでかいので、`.gitignore`に追加します。
+`isucondition`というファイルがバイナリファイルで`9.4M`と容量がでかいので、`.gitignore`に追加しようと思ったのですが、`.gitignore`ファイルで既に設定されていますね。  
+
+同様に`sql`の中身を確認すると、`1_InitData.sql`が大きいので、`.gitignore`に追加します。(実は`~/webapp`内の`.gitignore`に書かれてますが、練習ということで)  
 ```shell
-cd ~/isucari/webapp/go
-echo "isucari" >> .gitignore
-```
-同様に`sql`の中身を確認すると、`initial.sql`が大きいので、`.gitignore`に追加します。
-```shell
-cd ~/isucari/webapp/sql
+cd ~/webapp/sql
 ls -la
-echo "initial.sql" >> .gitignore
-```
-同様に`docs`の中身を確認すると、`images`がちょっと大きいですが、`.gitignore`に追加するほどではないので、そのまま GitHub にアップロードします。
-```shell
-cd ~/isucari/webapp/docs
-ls -la
+echo "1_InitData.sql" >> .gitignore
 ```
 
 ### GitHub にアップロードする
@@ -127,17 +135,17 @@ ls -la
 git config --global user.email "pikachu13711@gmail.com"
 git config --global user.name "pikachu0310"
 ```
-次に、`~/isucari`に戻って、以下のコマンドを実行し、GitHubにアップロードします。  
+次に、`~/`に戻って、以下のコマンドを実行し、GitHubにアップロードします。  
 以下のコマンドを順番に実行します。  
-ただし、7行目の`git@github.com:pikachu0310/isucon-workshop-2023summer.git`を自分のリポジトリに置き換えてください。
+ただし、7行目の`git@github.com:pikachu0310/isucon-workshop-2024.git`を自分のリポジトリに置き換えてください。
 ```shell
-cd ~/isucari
+cd ~
 git init
-git add webapp/README.md webapp/go webapp/sql webapp/docs
+git add webapp/go webapp/sql
 git status # 確認
 git commit -m ":tada: Initial commit"
 git branch -M main
-git remote add origin git@github.com:pikachu0310/isucon-workshop-2023summer.git
+git remote add origin git@github.com:pikachu0310/isucon-workshop-2024.git
 git push -u origin main
 ```
 これで、GitHub にアップロードできました！自分のレポジトリにアクセスして、確認してみましょう。
@@ -154,36 +162,42 @@ git clone 自分のレポジトリURL
 ```
 これで、サーバー上のファイルが手元に来ました！  
 これからは、手元でファイルを編集してGitHubにPushし、サーバー上でPullすることで、手元のファイルの変更をサーバー上に反映させます。
-試しに`webapp/READ.md`にちょっと変更を加えてサーバーに反映してみましょう。  
-これからは贅沢にもテキストエディタが使えるので、好きなテキストエディタで`webapp/READ.md`の要らない言語部分を消しましょう。以下のようになります。
+試しに`README.md`を作って、GitHubにPushしてみましょう。  
+これからは贅沢にもテキストエディタが使えるので、好きなテキストエディタで`README.md`を書きましょう。例えば以下のように描きます。
 ```markdown
-/home/isucon/isucari/webapp/
-├── docs      # アプリケーションおよび外部サービスについてのドキュメント
+# ISUCON11予選 (PISCON2024)
+## 問題に関連するリンク
+[ISUCON11 予選当日マニュアル](https://github.com/isucon/isucon11-qualify/blob/main/docs/manual.md#isucondition-%E3%81%B8%E3%81%AE%E3%83%AD%E3%82%B0%E3%82%A4%E3%83%B3)
+[ISUCONDITION アプリケーションマニュアル](https://github.com/isucon/isucon11-qualify/blob/main/docs/isucondition.md)
+[ISUCON11 予選レギュレーション](https://isucon.net/archives/55854734.html)
+[PISCON Portal](https://piscon.trap.jp/dashboard)
+[ISUCON初心者向け講習会資料](https://isucon-workshop.trap.show/)
+
+## アプリのディレクトリ構造
+/home/isucon/webapp/
 ├── frontend  # フロントエンドのソースコード
 ├── go        # Go実装
 ├── public    # jsやcss、画像データ等の静的ファイル
 └── sql       # データベースのスキーマおよび初期化に必要なSQL
+
+## その他ISUCONで使いそうなファイルの場所
+/home/isucon/env.sh # 環境変数の設定ファイル
+/etc/nginx/nginx.conf # Nginxの設定ファイル
+/etc/mysql/mariadb.conf.d/50-server.cnf # MySQLの設定ファイル
+/etc/systemd/system/isucondition.go.service # アプリケーションのsystemdサービスファイル
 ```
 変更したら、GitHubにPushしましょう。(自分のPC上で実行)
 ```shell
 cd <クローンしたディレクトリ>
-git add webapp/README.md
-git commit -m ":memo: README.mdの要らない言語部分を消した"
+git add README.md
+git commit -m ":memo: README.mdを追加"
 git push
 ```
 GitHub上の変更をサーバーに反映させる。(サーバー上で実行)
 ```shell
-cd ~/isucari && git pull
-cat webapp/README.md
+cd ~ && git pull
+cat README.md
 ```
-以下の様に、サーバー上に反映できています！
-```
-/home/isucon/isucari/webapp/
-├── docs      # アプリケーションおよび外部サービスについてのドキュメント
-├── frontend  # フロントエンドのソースコード
-├── go        # Go実装
-├── public    # jsやcss、画像データ等の静的ファイル
-└── sql       # データベースのスキーマおよび初期化に必要なSQL
-```
+これで`README.md`が表示されれば、成功です！
 これで`webapp/go/main.go`や`webapp/sql/01_schema.sql`ファイルをわざわざサーバー上で編集する必要が無くなり、ローカルでコーディングできるようになりました！
 ![](0-img/img-3.png)
