@@ -19,7 +19,7 @@ ssh isucon@54.168.169.193
 サーバーから抜けるには、`exit`コマンドを使います。
 
 :::tip 秘密鍵と公開鍵の作り方
-以下の「パスワードを入力しなくても接続できるようにする」と「`ssh isucon9`で接続できるようにする」には、秘密鍵と公開鍵が必要です。必須では無いのですが、凄く楽になるのでやりましょう。  
+以下の「パスワードを入力しなくても接続できるようにする」と「`ssh isucon1`で接続できるようにする」には、秘密鍵と公開鍵が必要です。必須では無いのですが、凄く楽になるのでやりましょう。  
 秘密鍵と公開鍵を作成するには、`ssh-keygen`コマンドを使います。以下のコマンドを実行することで、秘密鍵と公開鍵が作成されます。以下のコマンドは、自分のPC上で実行してください。
 ```shell
 mkdir ~/.ssh && chmod 700 ~/.ssh/ # ~/.ssh というディレクトリを作成
@@ -34,7 +34,7 @@ ls && cat id_ed25519.pub
 接続する際に、毎回パスワードを入力するのは面倒ですよね。実際ISUCONでは何度もサーバーに入ることが多いです。  
 そこで、公開鍵認証を使って、パスワードを入力しなくても接続できるようにしましょう。
 サーバーは`.ssh/authorized_keys`にある公開鍵に対応する秘密鍵を持っているユーザーに、接続を許可します。一般的に、サーバーに接続をする際は、ほとんどがこの公開鍵認証です。  
-ここでは、例として@pikachuの公開鍵`ssh-ed25519 AAAAC(省略)K+poi`を追加してみます。
+ここでは、例として@pikachuの公開鍵`ssh-ed25519 AAAAC(省略)K+poi`を追加してみます。自分で実行するときは、自分の公開鍵に置き換えてください。  
 以下のコマンドはサーバーで実行してください。
 ```shell
 cd ~ && mkdir ~/.ssh && chmod 744 ~/.ssh
@@ -42,22 +42,22 @@ echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO3aFsxQ60hI/ZFy5vJ+N6C0ONFBkfoQXz2PuT
 ```
 これで、`ssh isucon@xx.xxx.xxx.xxx`でパスワードを入力せずに接続できるようになりました。
 :::
-:::tip `ssh isucon9`で接続できるようにする(ちょっと発展)
+:::tip `ssh isucon1`で接続できるようにする(ちょっと発展)
 いちいち`isucon@xx.xxx.xxx.xxx`と入力するのもめんどくさいですよね。  
-なので、`ssh isucon9`で接続できるようにしようと思います。  
+なので、`ssh isucon1`で接続できるようにしようと思います。なぜこの名前かというと、isucon3で3台目のサーバーに接続という風な運用にしたいからです。  
 `~/.ssh`に、`config`というファイルを作成し、そのファイルに以下をテキストとして追加します。
 ```shell
-Host isucon9
+Host isucon1
   HostName xx.xxx.xxx.xxx # ここにグローバルIPアドレスを書く
   IdentityFile ~/.ssh/id_ed25519 # ここに秘密鍵のパスを書く
   User isucon # ここにユーザーネームを書く
 ```
-これで、`ssh isucon9`ですぐに接続できるようになりました！
+これで、`ssh isucon1`ですぐに接続できるようになりました！
 :::details パっとファイルにテキストとして追加するコマンド
 ```shell
 cat >> ~/.ssh/config <<EOL
 
-Host isucon9
+Host isucon1
   HostName xx.xxx.xxx.xxx
   IdentityFile ~/.ssh/id_ed25519
   User isucon
