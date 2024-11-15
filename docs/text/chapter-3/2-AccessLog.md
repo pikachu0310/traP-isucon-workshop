@@ -5,8 +5,7 @@
 nginxはWebサーバーアプリケーションで、リバースプロキシやロードバランサ、HTTPキャッシュなどの様々な機能を持っています。  
 ISUCONでは、サーバーに来たリクエストをメインのアプリケーションに転送するリバースプロキシとして初期状態から稼働していることが多いです。
 
-現在の状態では、`:80`に来たリクエストを`:8000`で稼働している`isucari.golang.service`に転送する設定がされています。
-
+現在の状態では、`:80`に来たリクエストを`:8000`で稼働している`isucondition.go.service`に転送する設定がされています。 // TODO
 ## nginx のアクセスログについて
 nginx は、アクセスログを出力します。  
 アクセスログとは、サーバーに来たリクエストの情報を記録したログのことです。  
@@ -17,7 +16,6 @@ nginx は、アクセスログを出力します。
 URI ごとの処理時間の合計や平均、何回リクエストが来たかなどを見やすく集計してくれます。  
 以下のコマンドを実行して、`alp`をインストールします。
 ```shell
-mkdir ~/tools
 cd ~/tools
 wget https://github.com/tkuchiki/alp/releases/download/v1.0.21/alp_linux_amd64.tar.gz
 tar zxvf alp_linux_amd64.tar.gz
@@ -80,62 +78,54 @@ sudo cat /var/log/nginx/access.log | alp ltsv
 ```
 :::details 出力結果(一部)
 ```
-isucon@ip-172-31-36-11:~/log$ sudo cat /var/log/nginx/access.log | alp ltsv
-+-------+-----+-----+-----+-----+-----+--------+----------------------------------------------+-------+-------+---------+-------+-------+-------+-------+--------+------------+------------+-------------+------------+
-| COUNT | 1XX | 2XX | 3XX | 4XX | 5XX | METHOD |                     URI                      |  MIN  |  MAX  |   SUM   |  AVG  |  P90  |  P95  |  P99  | STDDEV | MIN(BODY)  | MAX(BODY)  |  SUM(BODY)  | AVG(BODY)  |
-+-------+-----+-----+-----+-----+-----+--------+----------------------------------------------+-------+-------+---------+-------+-------+-------+-------+--------+------------+------------+-------------+------------+
-| 1     | 0   | 1   | 0   | 0   | 0   | GET    | /items/49410.json                            | 0.004 | 0.004 | 0.004   | 0.004 | 0.004 | 0.004 | 0.004 | 0.000  | 2239.000   | 2239.000   | 2239.000    | 2239.000   |
-| 1     | 0   | 1   | 0   | 0   | 0   | GET    | /items/46582.json                            | 0.008 | 0.008 | 0.008   | 0.008 | 0.008 | 0.008 | 0.008 | 0.000  | 2130.000   | 2130.000   | 2130.000    | 2130.000   |
-| 1     | 0   | 1   | 0   | 0   | 0   | GET    | /static/js/runtime~main.a8a9905a.js          | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 1502.000   | 1502.000   | 1502.000    | 1502.000   |
-| 1     | 0   | 1   | 0   | 0   | 0   | GET    | /static/js/main.babc3d4d.chunk.js            | 0.004 | 0.004 | 0.004   | 0.004 | 0.004 | 0.004 | 0.004 | 0.000  | 90365.000  | 90365.000  | 90365.000   | 90365.000  |
-| 1     | 0   | 1   | 0   | 0   | 0   | GET    | /static/css/main.19393e92.chunk.css          | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 994.000    | 994.000    | 994.000     | 994.000    |
-| 1     | 0   | 0   | 0   | 1   | 0   | POST   | /                                            | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 19.000     | 19.000     | 19.000      | 19.000     |
-| 1     | 0   | 0   | 0   | 1   | 0   | GET    | /.env                                        | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 19.000     | 19.000     | 19.000      | 19.000     |
-| 1     | 0   | 1   | 0   | 0   | 0   | GET    | /reports.json                                | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 101183.000 | 101183.000 | 101183.000  | 101183.000 |
-| 1     | 0   | 1   | 0   | 0   | 0   | GET    | /items/49551.json                            | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 1955.000   | 1955.000   | 1955.000    | 1955.000   |
-| 1     | 0   | 1   | 0   | 0   | 0   | GET    | /items/48790.json                            | 0.004 | 0.004 | 0.004   | 0.004 | 0.004 | 0.004 | 0.004 | 0.000  | 1930.000   | 1930.000   | 1930.000    | 1930.000   |
+isucon@ip-192-168-0-11:/var/log/nginx$ sudo cat /var/log/nginx/access.log | alp ltsv
++-------+-----+------+-----+-----+-----+--------+-----------------------------------------------------+-------+-------+---------+-------+-------+-------+-------+--------+------------+------------+---------------+------------+
+| COUNT | 1XX | 2XX  | 3XX | 4XX | 5XX | METHOD |                         URI                         |  MIN  |  MAX  |   SUM   |  AVG  |  P90  |  P95  |  P99  | STDDEV | MIN(BODY)  | MAX(BODY)  |   SUM(BODY)   | AVG(BODY)  |
++-------+-----+------+-----+-----+-----+--------+-----------------------------------------------------+-------+-------+---------+-------+-------+-------+-------+--------+------------+------------+---------------+------------+
+| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /api/isu/b82dcff4-8fae-4773-9956-22ab354adb7e       | 0.004 | 0.004 | 0.004   | 0.004 | 0.004 | 0.004 | 0.004 | 0.000  | 136.000    | 136.000    | 136.000       | 136.000    |
+| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /isu/8469e6f6-0d29-4052-87cf-dd9bfde45014/graph     | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 528.000    | 528.000    | 528.000       | 528.000    |
+| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /api/isu/328f8053-64ab-4336-b400-728d873982f2/icon  | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 19971.000  | 19971.000  | 19971.000     | 19971.000  |
+| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /api/isu/f715b5ff-dd87-41fa-8072-01a881455d1e/icon  | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 14460.000  | 14460.000  | 14460.000     | 14460.000  |
+| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /api/isu/967b9ac0-a228-4348-a258-f9de52422585/icon  | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 20908.000  | 20908.000  | 20908.000     | 20908.000  |
+| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /api/isu/d6c835fd-4126-4b59-a21d-f31b3dfadc7d/icon  | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 23533.000  | 23533.000  | 23533.000     | 23533.000  |
+| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /api/isu/e9011e73-9f5b-4b65-91b9-72418d1a7272/icon  | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 27009.000  | 27009.000  | 27009.000     | 27009.000  |
+| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /api/isu/400a9eb9-6c83-4f14-8ca0-aa14235dbc8e/icon  | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 30695.000  | 30695.000  | 30695.000     | 30695.000  |
+| 1     | 0   | 1    | 0   | 0   | 0   | POST   | /initialize                                         | 0.228 | 0.228 | 0.228   | 0.228 | 0.228 | 0.228 | 0.228 | 0.000  | 23.000     | 23.000     | 23.000        | 23.000     |
+| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /isu/eb104b95-3532-4828-8550-89da717b9667           | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 528.000    | 528.000    | 528.000       | 528.000    |
+| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /isu/cab99f63-bb3a-4648-b6df-376396f2c7ab/graph     | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 528.000    | 528.000    | 528.000       | 528.000    |
+| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /api/isu/eb104b95-3532-4828-8550-89da717b9667       | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 138.000    | 138.000    | 138.000       | 138.000    |
 ```
 :::
-`/items/49410.json`や、`/items/46582.json`など、同じような URI が多数あります。  
+`/api/isu/b82dcff4-8fae-4773-9956-22ab354adb7e`や、`/api/isu/328f8053-64ab-4336-b400-728d873982f2/icon`など、同じような URI が多数あります。  
 これらは、同じ handler で処理されるので一つの URI として集計したほうが良いので、コマンドに正規表現でまとめるオプションを付けます。
 ```shell
-sudo cat /var/log/nginx/access.log | alp ltsv -m"/users/\d+.json","/items/\d+.json","/new_items/\d+.json","/upload/.+.jpg","/transactions/\d+.png"
+sudo cat /var/log/nginx/access.log | alp ltsv -m"/api/isu/[a-f0-9\-]+","/api/isu/[a-f0-9\-]+/icon","/api/condition/[a-f0-9\-]+","/isu/[a-f0-9\-]+","/isu/[a-f0-9\-]+/graph","/isu/[a-f0-9\-]+/condition","/assets.*"
 ```
 いい感じに集計できてますね。最後に、今回1番重要な情報である`SUM`(合計処理時間)で降順にソートします。`--sort sum -r`を最後に着けます。
 ```shell
-sudo cat /var/log/nginx/access.log | alp ltsv -m "/users/\d+.json","/items/\d+.json","/new_items/\d+.json","/upload/.+.jpg","/transactions/\d+.png" --sort sum -r
+sudo cat /var/log/nginx/access.log | alp ltsv -m"/api/isu/[a-f0-9\-]+","/api/isu/[a-f0-9\-]+/icon","/api/condition/[a-f0-9\-]+","/isu/[a-f0-9\-]+","/isu/[a-f0-9\-]+/graph","/isu/[a-f0-9\-]+/condition","/assets.*" --sort sum -r
 ```
 :::details 出力結果
 ```
-isucon@ip-172-31-36-11:~/log$ sudo cat /var/log/nginx/access.log | alp ltsv -m "/users/\d+.json","/items/\d+.json","/new_items/\d+.json","/upload/.+.jpg","/transactions/\d+.png" --sort sum -r
-+-------+-----+------+-----+-----+-----+--------+-------------------------------------+-------+-------+---------+-------+-------+-------+-------+--------+------------+------------+--------------+------------+
-| COUNT | 1XX | 2XX  | 3XX | 4XX | 5XX | METHOD |                 URI                 |  MIN  |  MAX  |   SUM   |  AVG  |  P90  |  P95  |  P99  | STDDEV | MIN(BODY)  | MAX(BODY)  |  SUM(BODY)   | AVG(BODY)  |
-+-------+-----+------+-----+-----+-----+--------+-------------------------------------+-------+-------+---------+-------+-------+-------+-------+--------+------------+------------+--------------+------------+
-| 171   | 0   | 160  | 0   | 11  | 0   | GET    | /users/transactions.json            | 0.052 | 6.540 | 480.397 | 2.809 | 4.904 | 5.672 | 6.524 | 1.623  | 0.000      | 29174.000  | 3278536.000  | 19172.725  |
-| 785   | 0   | 784  | 0   | 1   | 0   | GET    | /new_items/\d+.json                 | 0.036 | 1.484 | 149.168 | 0.190 | 0.416 | 0.488 | 0.704 | 0.163  | 0.000      | 24051.000  | 18431412.000 | 23479.506  |
-| 267   | 0   | 267  | 0   | 0   | 0   | GET    | /users/\d+.json                     | 0.036 | 1.056 | 54.411  | 0.204 | 0.420 | 0.500 | 0.644 | 0.148  | 98.000     | 23980.000  | 3698269.000  | 13851.195  |
-| 53    | 0   | 27   | 0   | 26  | 0   | POST   | /buy                                | 1.078 | 2.160 | 49.756  | 0.939 | 1.628 | 1.636 | 2.160 | 0.797  | 0.000      | 49.000     | 1860.000     | 35.094     |
-| 100   | 0   | 100  | 0   | 0   | 0   | GET    | /new_items.json                     | 0.104 | 1.180 | 38.990  | 0.390 | 0.716 | 0.784 | 0.924 | 0.228  | 23062.000  | 23784.000  | 2340560.000  | 23405.600  |
-| 41    | 0   | 23   | 0   | 18  | 0   | POST   | /ship_done                          | 0.808 | 1.160 | 20.719  | 0.505 | 0.820 | 0.824 | 1.160 | 0.404  | 29.000     | 83.000     | 1676.000     | 40.878     |
-| 38    | 0   | 26   | 0   | 12  | 0   | POST   | /ship                               | 0.816 | 1.248 | 19.520  | 0.514 | 0.820 | 1.116 | 1.248 | 0.419  | 29.000     | 61.000     | 1982.000     | 52.158     |
-| 61    | 0   | 53   | 0   | 8   | 0   | POST   | /login                              | 0.092 | 0.504 | 14.924  | 0.245 | 0.400 | 0.480 | 0.504 | 0.122  | 73.000     | 103.000    | 5783.000     | 94.803     |
-| 21    | 0   | 21   | 0   | 0   | 0   | POST   | /complete                           | 0.004 | 0.824 | 14.638  | 0.697 | 0.812 | 0.824 | 0.824 | 0.280  | 34.000     | 34.000     | 714.000      | 34.000     |
-| 2356  | 0   | 2356 | 0   | 0   | 0   | GET    | /items/\d+.json                     | 0.004 | 0.140 | 14.164  | 0.006 | 0.012 | 0.016 | 0.028 | 0.007  | 1860.000   | 3966.000   | 5192391.000  | 2203.901   |
-| 1     | 0   | 1    | 0   | 0   | 0   | POST   | /initialize                         | 7.439 | 7.439 | 7.439   | 7.439 | 7.439 | 7.439 | 7.439 | 0.000  | 31.000     | 31.000     | 31.000       | 31.000     |
-| 53    | 0   | 53   | 0   | 0   | 0   | GET    | /settings                           | 0.004 | 0.276 | 3.536   | 0.067 | 0.204 | 0.240 | 0.276 | 0.081  | 2940.000   | 2953.000   | 156249.000   | 2948.094   |
-| 51    | 0   | 33   | 0   | 18  | 0   | POST   | /sell                               | 0.012 | 0.392 | 2.216   | 0.043 | 0.116 | 0.372 | 0.392 | 0.093  | 13.000     | 106.000    | 1875.000     | 36.765     |
-| 35    | 0   | 23   | 0   | 12  | 0   | GET    | /transactions/\d+.png               | 0.004 | 0.540 | 1.204   | 0.034 | 0.016 | 0.540 | 0.540 | 0.125  | 33.000     | 628.000    | 14533.000    | 415.229    |
-| 13    | 0   | 13   | 0   | 0   | 0   | POST   | /bump                               | 0.004 | 0.256 | 0.424   | 0.033 | 0.048 | 0.256 | 0.256 | 0.065  | 89.000     | 92.000     | 1178.000     | 90.615     |
-| 9     | 0   | 3    | 0   | 6   | 0   | POST   | /items/edit                         | 0.004 | 0.040 | 0.076   | 0.008 | 0.040 | 0.040 | 0.040 | 0.012  | 58.000     | 93.000     | 625.000      | 69.444     |
-| 57    | 0   | 57   | 0   | 0   | 0   | GET    | /upload/.+.jpg                      | 0.000 | 0.004 | 0.056   | 0.001 | 0.004 | 0.004 | 0.004 | 0.002  | 53280.000  | 134363.000 | 4360184.000  | 76494.456  |
-| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /static/js/main.babc3d4d.chunk.js   | 0.004 | 0.004 | 0.004   | 0.004 | 0.004 | 0.004 | 0.004 | 0.000  | 90365.000  | 90365.000  | 90365.000    | 90365.000  |
-| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /static/css/main.19393e92.chunk.css | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 994.000    | 994.000    | 994.000      | 994.000    |
-| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /static/js/runtime~main.a8a9905a.js | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 1502.000   | 1502.000   | 1502.000     | 1502.000   |
-| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /static/js/2.ff6e1067.chunk.js      | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 508459.000 | 508459.000 | 508459.000   | 508459.000 |
-| 1     | 0   | 1    | 0   | 0   | 0   | GET    | /reports.json                       | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 101183.000 | 101183.000 | 101183.000   | 101183.000 |
-| 1     | 0   | 0    | 0   | 1   | 0   | GET    | /.env                               | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 19.000     | 19.000     | 19.000       | 19.000     |
-| 1     | 0   | 0    | 0   | 1   | 0   | POST   | /                                   | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 19.000     | 19.000     | 19.000       | 19.000     |
-+-------+-----+------+-----+-----+-----+--------+-------------------------------------+-------+-------+---------+-------+-------+-------+-------+--------+------------+------------+--------------+------------+
+isucon@ip-192-168-0-11:/var/log/nginx$ sudo cat /var/log/nginx/access.log | alp ltsv -m"/api/isu/[a-f0-9\-]+","/api/isu/[a-f0-9\-]+/icon","/api/condition/[a-f0-9\-]+","/isu/[a-f0-9\-]+","/isu/[a-f0-9\-]+/graph","/isu/[a-f0-9\-]+/condition","/assets.*" --sort sum -r
++-------+-----+-------+-----+-----+-----+--------+----------------------------+-------+-------+---------+-------+-------+-------+-------+--------+-----------+------------+---------------+-----------+
+| COUNT | 1XX |  2XX  | 3XX | 4XX | 5XX | METHOD |            URI             |  MIN  |  MAX  |   SUM   |  AVG  |  P90  |  P95  |  P99  | STDDEV | MIN(BODY) | MAX(BODY)  |   SUM(BODY)   | AVG(BODY) |
++-------+-----+-------+-----+-----+-----+--------+----------------------------+-------+-------+---------+-------+-------+-------+-------+--------+-----------+------------+---------------+-----------+
+| 74349 | 0   | 73643 | 0   | 706 | 0   | POST   | /api/condition/[a-f0-9\-]+ | 0.004 | 0.120 | 582.266 | 0.008 | 0.020 | 0.052 | 0.096 | 0.018  | 0.000     | 14.000     | 112.000       | 0.002     |
+| 8958  | 0   | 8352  | 0   | 606 | 0   | GET    | /api/isu/[a-f0-9\-]+       | 0.004 | 0.408 | 309.550 | 0.035 | 0.068 | 0.088 | 0.152 | 0.031  | 0.000     | 135429.000 | 177012916.000 | 19760.317 |
+| 3883  | 0   | 3492  | 0   | 391 | 0   | GET    | /api/condition/[a-f0-9\-]+ | 0.004 | 0.564 | 194.353 | 0.050 | 0.096 | 0.120 | 0.204 | 0.041  | 0.000     | 7322.000   | 19907612.000  | 5126.864  |
+| 200   | 0   | 27    | 0   | 173 | 0   | GET    | /api/trend                 | 0.016 | 1.012 | 189.303 | 0.947 | 1.004 | 1.008 | 1.012 | 0.197  | 0.000     | 8218.000   | 172828.000    | 864.140   |
+| 980   | 0   | 925   | 0   | 55  | 0   | GET    | /api/isu                   | 0.004 | 0.244 | 49.967  | 0.051 | 0.092 | 0.108 | 0.156 | 0.031  | 3.000     | 4675.000   | 2841666.000   | 2899.659  |
+| 780   | 0   | 340   | 0   | 440 | 0   | POST   | /api/auth                  | 0.012 | 0.180 | 8.384   | 0.011 | 0.028 | 0.040 | 0.088 | 0.019  | 0.000     | 19.000     | 5060.000      | 6.487     |
+| 1662  | 0   | 1187  | 475 | 0   | 0   | GET    | /assets.*                  | 0.004 | 0.028 | 3.796   | 0.002 | 0.008 | 0.008 | 0.012 | 0.003  | 0.000     | 743417.000 | 157667082.000 | 94865.874 |
+| 55    | 0   | 51    | 0   | 4   | 0   | POST   | /api/isu                   | 0.004 | 0.128 | 3.612   | 0.066 | 0.092 | 0.108 | 0.128 | 0.023  | 15.000    | 151.000    | 7106.000      | 129.200   |
+| 396   | 0   | 176   | 0   | 220 | 0   | GET    | /api/user/me               | 0.004 | 0.096 | 3.284   | 0.008 | 0.024 | 0.036 | 0.076 | 0.014  | 21.000    | 46.000     | 11835.000     | 29.886    |
+| 224   | 0   | 167   | 0   | 57  | 0   | POST   | /api/signout               | 0.004 | 0.100 | 2.836   | 0.013 | 0.032 | 0.044 | 0.084 | 0.016  | 21.000    | 21.000     | 1197.000      | 5.344     |
+| 436   | 0   | 374   | 62  | 0   | 0   | GET    | /                          | 0.000 | 0.020 | 0.776   | 0.002 | 0.004 | 0.008 | 0.012 | 0.003  | 528.000   | 528.000    | 197472.000    | 452.917   |
+| 1     | 0   | 1     | 0   | 0   | 0   | POST   | /initialize                | 0.228 | 0.228 | 0.228   | 0.228 | 0.228 | 0.228 | 0.228 | 0.000  | 23.000    | 23.000     | 23.000        | 23.000    |
+| 30    | 0   | 18    | 12  | 0   | 0   | GET    | /isu/[a-f0-9\-]+           | 0.000 | 0.004 | 0.016   | 0.001 | 0.004 | 0.004 | 0.004 | 0.001  | 0.000     | 528.000    | 9504.000      | 316.800   |
+| 3     | 0   | 1     | 2   | 0   | 0   | GET    | /register                  | 0.000 | 0.000 | 0.000   | 0.000 | 0.000 | 0.000 | 0.000 | 0.000  | 0.000     | 528.000    | 528.000       | 176.000   |
++-------+-----+-------+-----+-----+-----+--------+----------------------------+-------+-------+---------+-------+-------+-------+-------+--------+-----------+------------+---------------+-----------+
 ```
 :::
 参考: [alpの使い方(基本編)](https://zenn.dev/tkuchiki/articles/how-to-use-alp)
@@ -144,206 +134,101 @@ isucon@ip-172-31-36-11:~/log$ sudo cat /var/log/nginx/access.log | alp ltsv -m "
 `COUNT`も重要で、`COUNT`はリクエストが来た回数です。多ければそのリクエストが多く来ていることを表しています。
 :::
 ## アクセスログの解析結果からボトルネックを特定する
-解析結果の`SUM`の部分を見てみると、`/users/transactions.json`が`480.397`と、ダントツで処理に時間がかかっていることが分かりました。これがボトルネックです！  
-なので、まずは`/users/transactions.json`の部分を改善しよう！となります。次の方針が定まりました。  
+解析結果の`SUM`の部分を見てみると、`/api/condition/[a-f0-9\-]+`が`582.266`と、かなり処理に時間がかかっていることが分かりました。これがボトルネックです！  
+なので、まずは`/api/condition/[a-f0-9\-]+`の部分を改善しよう！となります。次の方針が定まりました。  
 
 ## ログローテーション
 nginx は、アクセスログを`/var/log/nginx/access.log`に出力します。スロークエリログと同じく、こちらもログローテーションを行う必要があります。  
 ベンチマークを実行する前に以下のコマンドを実行するようにしましょう。
 ```shell
-mkdir ~/isucari/log
-sudo cat /var/log/nginx/access.log | alp ltsv -m "/users/\d+.json","/items/\d+.json","/new_items/\d+.json","/upload/.+.jpg","/transactions/\d+.png" --sort sum -r > ~/isucari/log/$(date +access.log-%m-%d-%H-%M -d "+9 hours")
+sudo cat /var/log/nginx/access.log | alp ltsv -m"/api/isu/[a-f0-9\-]+","/api/isu/[a-f0-9\-]+/icon","/api/condition/[a-f0-9\-]+","/isu/[a-f0-9\-]+","/isu/[a-f0-9\-]+/graph","/isu/[a-f0-9\-]+/condition","/assets.*" --sort sum -r > ~/log/$(date +access.log-%m-%d-%H-%M -d "+9 hours")
 sudo rm /var/log/nginx/access.log
+sudo systemctl restart nginx
 ```
 
-## ローカルで`/users/transactions.json`の部分を見てみる
-`webapp/go/main.go`をローカルのエディタで開いてください。  
-`/users/transactions.json`で検索すると、328行目にハンドラーの部分で見つかります。
+## ローカルで`/api/condition/[a-f0-9\-]+`の部分を見てみる
+`~/webapp/go/main.go`をローカルのエディタで開いてください。  
+`/api/condition`で検索すると、1160行目に関数が見つかります。
 ```go
-    mux.HandleFunc(pat.Get("/users/transactions.json"), getTransactions)
+// POST /api/condition/:jia_isu_uuid
+// ISUからのコンディションを受け取る
+func postIsuCondition(c echo.Context) error {
+// TODO: 一定割合リクエストを落としてしのぐようにしたが、本来は全量さばけるようにすべき
+dropProbability := 0.9
+(省略)
 ```
-どうやら`getTransactions`という関数が激遅のようですね。
-:::details getTransactionsの中身
+なんか凄いことが書かれていませんか！？9割のリクエストを無視しているようです。その上でここまで遅い..... 楽しくなってきましたね！  
+:::details postIsuConditionの中身
 ```go
-func getTransactions(w http.ResponseWriter, r *http.Request) {
-
-	user, errCode, errMsg := getUser(r)
-	if errMsg != "" {
-		outputErrorMsg(w, errCode, errMsg)
-		return
+// POST /api/condition/:jia_isu_uuid
+// ISUからのコンディションを受け取る
+func postIsuCondition(c echo.Context) error {
+	// TODO: 一定割合リクエストを落としてしのぐようにしたが、本来は全量さばけるようにすべき
+	dropProbability := 0.9
+	if rand.Float64() <= dropProbability {
+		c.Logger().Warnf("drop post isu condition request")
+		return c.NoContent(http.StatusAccepted)
 	}
 
-	query := r.URL.Query()
-	itemIDStr := query.Get("item_id")
-	var err error
-	var itemID int64
-	if itemIDStr != "" {
-		itemID, err = strconv.ParseInt(itemIDStr, 10, 64)
-		if err != nil || itemID <= 0 {
-			outputErrorMsg(w, http.StatusBadRequest, "item_id param error")
-			return
+	jiaIsuUUID := c.Param("jia_isu_uuid")
+	if jiaIsuUUID == "" {
+		return c.String(http.StatusBadRequest, "missing: jia_isu_uuid")
+	}
+
+	req := []PostIsuConditionRequest{}
+	err := c.Bind(&req)
+	if err != nil {
+		return c.String(http.StatusBadRequest, "bad request body")
+	} else if len(req) == 0 {
+		return c.String(http.StatusBadRequest, "bad request body")
+	}
+
+	tx, err := db.Beginx()
+	if err != nil {
+		c.Logger().Errorf("db error: %v", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	defer tx.Rollback()
+
+	var count int
+	err = tx.Get(&count, "SELECT COUNT(*) FROM `isu` WHERE `jia_isu_uuid` = ?", jiaIsuUUID)
+	if err != nil {
+		c.Logger().Errorf("db error: %v", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+	if count == 0 {
+		return c.String(http.StatusNotFound, "not found: isu")
+	}
+
+	for _, cond := range req {
+		timestamp := time.Unix(cond.Timestamp, 0)
+
+		if !isValidConditionFormat(cond.Condition) {
+			return c.String(http.StatusBadRequest, "bad request body")
 		}
-	}
 
-	createdAtStr := query.Get("created_at")
-	var createdAt int64
-	if createdAtStr != "" {
-		createdAt, err = strconv.ParseInt(createdAtStr, 10, 64)
-		if err != nil || createdAt <= 0 {
-			outputErrorMsg(w, http.StatusBadRequest, "created_at param error")
-			return
-		}
-	}
-
-	tx := dbx.MustBegin()
-	items := []Item{}
-	if itemID > 0 && createdAt > 0 {
-		// paging
-		err := tx.Select(&items,
-			"SELECT * FROM `items` WHERE (`seller_id` = ? OR `buyer_id` = ?) AND `status` IN (?,?,?,?,?) AND (`created_at` < ?  OR (`created_at` <= ? AND `id` < ?)) ORDER BY `created_at` DESC, `id` DESC LIMIT ?",
-			user.ID,
-			user.ID,
-			ItemStatusOnSale,
-			ItemStatusTrading,
-			ItemStatusSoldOut,
-			ItemStatusCancel,
-			ItemStatusStop,
-			time.Unix(createdAt, 0),
-			time.Unix(createdAt, 0),
-			itemID,
-			TransactionsPerPage+1,
-		)
+		_, err = tx.Exec(
+			"INSERT INTO `isu_condition`"+
+				"	(`jia_isu_uuid`, `timestamp`, `is_sitting`, `condition`, `message`)"+
+				"	VALUES (?, ?, ?, ?, ?)",
+			jiaIsuUUID, timestamp, cond.IsSitting, cond.Condition, cond.Message)
 		if err != nil {
-			log.Print(err)
-			outputErrorMsg(w, http.StatusInternalServerError, "db error")
-			tx.Rollback()
-			return
+			c.Logger().Errorf("db error: %v", err)
+			return c.NoContent(http.StatusInternalServerError)
 		}
-	} else {
-		// 1st page
-		err := tx.Select(&items,
-			"SELECT * FROM `items` WHERE (`seller_id` = ? OR `buyer_id` = ?) AND `status` IN (?,?,?,?,?) ORDER BY `created_at` DESC, `id` DESC LIMIT ?",
-			user.ID,
-			user.ID,
-			ItemStatusOnSale,
-			ItemStatusTrading,
-			ItemStatusSoldOut,
-			ItemStatusCancel,
-			ItemStatusStop,
-			TransactionsPerPage+1,
-		)
-		if err != nil {
-			log.Print(err)
-			outputErrorMsg(w, http.StatusInternalServerError, "db error")
-			tx.Rollback()
-			return
-		}
+
 	}
 
-	itemDetails := []ItemDetail{}
-	for _, item := range items {
-		seller, err := getUserSimpleByID(tx, item.SellerID)
-		if err != nil {
-			outputErrorMsg(w, http.StatusNotFound, "seller not found")
-			tx.Rollback()
-			return
-		}
-		category, err := getCategoryByID(tx, item.CategoryID)
-		if err != nil {
-			outputErrorMsg(w, http.StatusNotFound, "category not found")
-			tx.Rollback()
-			return
-		}
-
-		itemDetail := ItemDetail{
-			ID:       item.ID,
-			SellerID: item.SellerID,
-			Seller:   &seller,
-			// BuyerID
-			// Buyer
-			Status:      item.Status,
-			Name:        item.Name,
-			Price:       item.Price,
-			Description: item.Description,
-			ImageURL:    getImageURL(item.ImageName),
-			CategoryID:  item.CategoryID,
-			// TransactionEvidenceID
-			// TransactionEvidenceStatus
-			// ShippingStatus
-			Category:  &category,
-			CreatedAt: item.CreatedAt.Unix(),
-		}
-
-		if item.BuyerID != 0 {
-			buyer, err := getUserSimpleByID(tx, item.BuyerID)
-			if err != nil {
-				outputErrorMsg(w, http.StatusNotFound, "buyer not found")
-				tx.Rollback()
-				return
-			}
-			itemDetail.BuyerID = item.BuyerID
-			itemDetail.Buyer = &buyer
-		}
-
-		transactionEvidence := TransactionEvidence{}
-		err = tx.Get(&transactionEvidence, "SELECT * FROM `transaction_evidences` WHERE `item_id` = ?", item.ID)
-		if err != nil && err != sql.ErrNoRows {
-			// It's able to ignore ErrNoRows
-			log.Print(err)
-			outputErrorMsg(w, http.StatusInternalServerError, "db error")
-			tx.Rollback()
-			return
-		}
-
-		if transactionEvidence.ID > 0 {
-			shipping := Shipping{}
-			err = tx.Get(&shipping, "SELECT * FROM `shippings` WHERE `transaction_evidence_id` = ?", transactionEvidence.ID)
-			if err == sql.ErrNoRows {
-				outputErrorMsg(w, http.StatusNotFound, "shipping not found")
-				tx.Rollback()
-				return
-			}
-			if err != nil {
-				log.Print(err)
-				outputErrorMsg(w, http.StatusInternalServerError, "db error")
-				tx.Rollback()
-				return
-			}
-			ssr, err := APIShipmentStatus(getShipmentServiceURL(), &APIShipmentStatusReq{
-				ReserveID: shipping.ReserveID,
-			})
-			if err != nil {
-				log.Print(err)
-				outputErrorMsg(w, http.StatusInternalServerError, "failed to request to shipment service")
-				tx.Rollback()
-				return
-			}
-
-			itemDetail.TransactionEvidenceID = transactionEvidence.ID
-			itemDetail.TransactionEvidenceStatus = transactionEvidence.Status
-			itemDetail.ShippingStatus = ssr.Status
-		}
-
-		itemDetails = append(itemDetails, itemDetail)
-	}
-	tx.Commit()
-
-	hasNext := false
-	if len(itemDetails) > TransactionsPerPage {
-		hasNext = true
-		itemDetails = itemDetails[0:TransactionsPerPage]
+	err = tx.Commit()
+	if err != nil {
+		c.Logger().Errorf("db error: %v", err)
+		return c.NoContent(http.StatusInternalServerError)
 	}
 
-	rts := resTransactions{
-		Items:   itemDetails,
-		HasNext: hasNext,
-	}
-
-	w.Header().Set("Content-Type", "application/json;charset=utf-8")
-	json.NewEncoder(w).Encode(rts)
-
+	return c.NoContent(http.StatusAccepted)
 }
 ```
+
 :::
-長くてどこが遅いか分かんね～！という方は、次に紹介する計測ツール、`pprof`を使ってみましょう。  
-こんな感じで、`alp`を用いて`getTransactions`という関数が遅いぞという所まで分かりました。
+長くてどこが遅いか分かんね～！ってなりますよね。しかし、Goにはとんでもない神ツールがあります。次の章で紹介する計測ツール、`pprof`を使ってみましょう！   
+こんな感じで、`alp`を用いて`postIsuCondition`という関数が遅いぞという所まで分かりました！

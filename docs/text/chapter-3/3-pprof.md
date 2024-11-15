@@ -50,7 +50,7 @@ git push
 まず、サーバー上のGitリポジトリのルートで、`git pull` を行い、ソースコードの変更をサーバー上のファイルに反映させます。
 
 ```shell
-cd ~/isucari
+cd ~/
 git pull
 ```
 
@@ -58,14 +58,14 @@ git pull
 
 <!-- TODO: 正しいディレクトリとバイナリ名が分からないので書いて -->
 ```shell
-cd ~/isucon/webapp/go
-make isucari
+cd ~/webapp/go
+go build -o isucondition main.go
 ```
 
 最後に、アプリケーションを再起動して、変更を反映させましょう。
 
 ```shell
-sudo systemctl restart isucari.golang.service
+sudo systemctl restart isucondition.go.service
 ```
 
 ## アプリケーションの計測
@@ -81,7 +81,7 @@ pprofでアプリケーションを計測します。
 `htop` でCPU使用率を監視し、一番負荷がかかるタイミングを見極めて、計測を行いましょう。
 
 ```shell
-go tool pprof http://localhost:6060/debug/pprof/profile?seconds=30
+go tool pprof http://localhost:6060/debug/pprof/profile?seconds=60
 ```
 
 計測が終わると、`Saved profile in /home/isucon/pprof/pprof.samples.cpu.001.pb.gz` のような出力が出ます。
@@ -97,7 +97,7 @@ go tool pprof http://localhost:6060/debug/pprof/profile?seconds=30
 成功すると、手元のブラウザで `localhost:6070` にアクセスすると、サーバー上の `localhost:6070` にアクセスが可能になります。
 
 ```shell
-ssh -L 6070:localhost:6070 isucon9
+ssh -L 6070:localhost:6070 isucon1
 ```
 
 可視化に必要なライブラリがあるため、次のコマンドでサーバー上にインストールします。
@@ -107,10 +107,10 @@ sudo apt install graphviz
 ```
 
 次のコマンドで、サーバー上の `localhost:6070` で可視化Webサーバーを立ち上げましょう。
-`/home/isucon/pprof/pprof.isucari.samples.cpu.001.pb.gz` の部分を、可視化したい計測結果のファイル名に置き換えてください。
+`/home/isucon/pprof/pprof.isucondition.samples.cpu.001.pb.gz` の部分を、可視化したい計測結果のファイル名に置き換えてください。
 
 ```shell
-go tool pprof -http=localhost:6070 /home/isucon/pprof/pprof.isucari.samples.cpu.001.pb.gz
+go tool pprof -http=localhost:6070 /home/isucon/pprof/pprof.isucondition.samples.cpu.001.pb.gz
 ```
 
 手元のブラウザで `http://localhost:6070` にアクセスして、「pprof」のページが表示されれば成功です。
