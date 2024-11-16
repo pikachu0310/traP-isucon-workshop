@@ -1,6 +1,6 @@
 # ポータルの使い方を知ろう
 
-以下、PISCON(部内ISUCON)開催時かつISUCON9予選の問題を使って説明します。
+以下、PISCON(部内ISUCON)開催時かつISUCON11予選の問題を使って説明します。
 
 ## ログイン
 [PISCON Portal](https://piscon.trap.jp) を開き、右上にある`Signin with traQ`からログインしてください。  
