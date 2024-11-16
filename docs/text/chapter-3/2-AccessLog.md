@@ -72,11 +72,12 @@ sudo systemctl reload nginx
 これで準備完了です！
 
 ## アクセスログを計測する
-計測する前に、既にあるアクセスログを削除しておきましょう。  
+計測する前に、既にあるアクセスログを削除して、再起動しファイルを生成しましょう。
 ```shell
 sudo rm /var/log/nginx/access.log
+sudo systemctl reload nginx
 ```
-ベンチマークを実行しましょう。終わったら、以下のコマンドでアクセスログを解析しましょう。
+その後、ベンチマークを実行しましょう。終わったら、以下のコマンドでアクセスログを解析しましょう。
 ```shell
 sudo cat /var/log/nginx/access.log | alp ltsv
 ```
