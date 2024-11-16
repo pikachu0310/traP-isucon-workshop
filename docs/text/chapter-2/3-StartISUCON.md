@@ -25,7 +25,7 @@ sudo nginx -t # 先ほど変更したファイルが、正しく読み込める�
 sudo systemctl reload nginx # Nginxの設定を再読み込み
 ```
 
-また、今回はもう1つ変更しなければならないファイルがあるため、以下のコマンドもサーバー内で実行してください。
+また、今回はもう1つ変更しなければならないファイルがあるため、以下のコマンドもサーバー内で実行してください。ただし、`isucondition-1.t.isucon.dev`の数字は、サーバーのN台目の数字に合わせてください！(3台目であれば`isucondition-3.t.isucon.dev`)  
 ```shell
 sudo bash -c 'cat <<EOL > /home/isucon/env.sh 
 MYSQL_HOST="127.0.0.1"
