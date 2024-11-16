@@ -26,7 +26,7 @@ import _ "net/http/pprof" // [!code ++]
 ```go
 func main() {
 	go func() { // [!code ++]
-		log.Println(http.ListenAndServe("localhost:6060", nil)) // [!code ++]
+		fmt.Println(http.ListenAndServe("localhost:6060", nil)) // [!code ++]
 	}() // [!code ++]
 
 	// 後略
