@@ -146,6 +146,11 @@ sudo rm /var/log/nginx/access.log
 sudo systemctl restart nginx
 ```
 
+なお、最新のログは以下のコマンドで見ます。  
+```shell
+cd ~/log && cat $(ls -t access.log-* | head -n 1)
+```
+
 ## ローカルで`/api/condition/[a-f0-9\-]+`の部分を見てみる
 `~/webapp/go/main.go`をローカルのエディタで開いてください。  
 `/api/condition`で検索すると、1160行目に関数が見つかります。

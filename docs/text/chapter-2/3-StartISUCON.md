@@ -80,3 +80,10 @@ ReadCriticalCondition: 187
 15:15:09.087325 deduction: 0 / timeout: 49
 ```
 初期状態でのスコアは9372点でした！ようやくISUCONが始まりましたね！
+
+:::tip
+- 点数が1000点で固定化されてされて困ってる人へ
+    - `cat ~/env.sh`の`isucondition-1.t.isucon.dev`の数字を、サーバーN台目のNに合わせてください！
+        - 例: サーバー3代目のインスタンスの場合、`nano ~/env.sh`で`isucondition-3.t.isucon.dev`に書き換える
+    - その後、`sudo systemctl restart isucondition.go.service`を実行して反映させてください。
+:::

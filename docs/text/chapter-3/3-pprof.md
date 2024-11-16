@@ -114,7 +114,7 @@ go tool pprof -http=localhost:6070 /home/isucon/pprof/pprof.isucondition.samples
 
 手元のブラウザで `http://localhost:6070` にアクセスして、「pprof」のページが表示されれば成功です。
 
-:::tip 楽に計測・可視化するために
+:::tip 楽に計測・可視化するために(発展)
 
 以上の手順を毎回やっていては、手間がかかりますね。
 ISUCON本番では時間が足りなくなるので、毎回計測の際に叩くコマンドをシェルスクリプトやMakefile、Taskfileなどにまとめておくと良いでしょう。
@@ -142,107 +142,13 @@ pprof-check:
 
 また、左上の「View」から「Flame Graph」を選ぶと、Flame Graphと呼ばれる形式の表示になります。
 表示方法が異なりますが、可視化している情報はトップのGraph表示と同じです。
-見やすい方を使いましょう。
+見やすい方を使いましょう。Flame Graph を見ることが多いかなと思います。  
+
+![](3-img/img_2.png)
 
 ## ボトルネックを発見する
-GetTrendと、PostIsuCondition の関数がCPUをたくさん使っていて、ボトルネックとなっていそうだとわかります。
-以下実践
-
-```go
-// GET /api/trend
-// ISUの性格毎の最新のコンディション情報
-func getTrend(c echo.Context) error {
-	characterList := []Isu{}
-	err := db.Select(&characterList, "SELECT `character` FROM `isu` GROUP BY `character`")
-	if err != nil {
-		c.Logger().Errorf("db error: %v", err)
-		return c.NoContent(http.StatusInternalServerError)
-	}
-
-	res := []TrendResponse{}
-
-	for _, character := range characterList {
-		isuList := []Isu{}
-		err = db.Select(&isuList,
-			"SELECT * FROM `isu` WHERE `character` = ?",
-			character.Character,
-		)
-		if err != nil {
-			c.Logger().Errorf("db error: %v", err)
-			return c.NoContent(http.StatusInternalServerError)
-		}
-
-		characterInfoIsuConditions := []*TrendCondition{}
-		characterWarningIsuConditions := []*TrendCondition{}
-		characterCriticalIsuConditions := []*TrendCondition{}
-		for _, isu := range isuList {
-			conditions := []IsuCondition{}
-			err = db.Select(&conditions,
-				"SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? ORDER BY timestamp DESC",
-				isu.JIAIsuUUID,
-			)
-			if err != nil {
-				c.Logger().Errorf("db error: %v", err)
-				return c.NoContent(http.StatusInternalServerError)
-			}
-
-			if len(conditions) > 0 {
-				isuLastCondition := conditions[0]
-				conditionLevel, err := calculateConditionLevel(isuLastCondition.Condition)
-				if err != nil {
-					c.Logger().Error(err)
-					return c.NoContent(http.StatusInternalServerError)
-				}
-				trendCondition := TrendCondition{
-					ID:        isu.ID,
-					Timestamp: isuLastCondition.Timestamp.Unix(),
-				}
-				switch conditionLevel {
-				case "info":
-					characterInfoIsuConditions = append(characterInfoIsuConditions, &trendCondition)
-				case "warning":
-					characterWarningIsuConditions = append(characterWarningIsuConditions, &trendCondition)
-				case "critical":
-					characterCriticalIsuConditions = append(characterCriticalIsuConditions, &trendCondition)
-				}
-			}
-
-		}
-
-		sort.Slice(characterInfoIsuConditions, func(i, j int) bool {
-			return characterInfoIsuConditions[i].Timestamp > characterInfoIsuConditions[j].Timestamp
-		})
-		sort.Slice(characterWarningIsuConditions, func(i, j int) bool {
-			return characterWarningIsuConditions[i].Timestamp > characterWarningIsuConditions[j].Timestamp
-		})
-		sort.Slice(characterCriticalIsuConditions, func(i, j int) bool {
-			return characterCriticalIsuConditions[i].Timestamp > characterCriticalIsuConditions[j].Timestamp
-		})
-		res = append(res,
-			TrendResponse{
-				Character: character.Character,
-				Info:      characterInfoIsuConditions,
-				Warning:   characterWarningIsuConditions,
-				Critical:  characterCriticalIsuConditions,
-			})
-	}
-
-	return c.JSON(http.StatusOK, res)
-}
-```
-実装を見ると、`isu` テーブルから `character` を取得し、その `character` に対応する `isu` を取得し、さらにその `isu` に対応する `isu_condition` を取得しています。  
-N+1問題が発生しているのが明確なのですが、今回は `isu_condition` の取得がボトルネックとなっている事を思い出して周辺の実装を見てみると、
-```go
-isuLastCondition := conditions[0]
-```
-となっているので、`isu_condition` の取得は最新の1件だけで良さそうですが、"SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? ORDER BY timestamp DESC" として全件取得していることが分かります。  
-最新の1件だけ取るように修正することで、高速化が期待できます。以下のように LIMIT 1 を追加します。
-```go
-err = db.Get(&isuLastCondition,
-    "SELECT * FROM `isu_condition` WHERE `jia_isu_uuid` = ? ORDER BY timestamp DESC LIMIT 1", // LIMIT 1 を追加
-    isu.JIAIsuUUID,
-)
-```
-再度計測してみましょう！
-
-:loading:
+Flame Graph を見ると、main.getTrend が一番横に大きく、CPU時間を使っていることがわかります。  
+また、main.getIsuCondition や main.postIsuCondition もそれなりにCPU時間を使っていることがわかります。  
+これで、今現在は main.getTrend がボトルネックになっていそうだということが分かり、他にも改善の余地があることがわかりました！  
+ここまでで、計測に必要なツールの使い方が分かりました！  
+次の章では、実際に 計測、ボトルネックの発見、改善 を行いましょう！
