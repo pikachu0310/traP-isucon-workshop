@@ -1,4 +1,4 @@
-# pprof (fgprof)
+# pprof
 
 ## pprofとは
 

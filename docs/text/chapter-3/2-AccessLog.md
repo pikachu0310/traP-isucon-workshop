@@ -27,17 +27,21 @@ nginx のアクセスログの形式を変更します。
 `/etc/nginx/nginx.conf`を開き、nginx の設定ファイルを書き換えます。   
 `sudo nano /etc/nginx/nginx.conf`で、以下の様に23行目`access_log`の所を消し、`log_format`と`access_log`を追加しましょう。
 ```:line-numbers=20
-    keepalive_timeout 120;
-    client_max_body_size 10m;
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
 
-    access_log /var/log/nginx/access.log;  // [!code --]
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '  // [!code --]
+                      '$status $body_bytes_sent "$http_referer" '  // [!code --]
+                      '"$http_user_agent" "$http_x_forwarded_for"';  // [!code --]
 
-    # TLS configuration
-    ssl_protocols TLSv1.2;
+    access_log  /var/log/nginx/access.log  main;  // [!code --]
+
+    sendfile        on;
+    #tcp_nopush     on;
 ```
 ```:line-numbers=20
-    keepalive_timeout 120;
-    client_max_body_size 10m;
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
     
     log_format ltsv "time:$time_local"  // [!code ++]
                     "\thost:$remote_addr"  // [!code ++]
@@ -57,8 +61,8 @@ nginx のアクセスログの形式を変更します。
     
     access_log /var/log/nginx/access.log ltsv; // [!code ++]
     
-    # TLS configuration
-    ssl_protocols TLSv1.2;
+    sendfile        on;
+    #tcp_nopush     on;
 ```
 書き換えたら、以下のコマンドで文法チェックをして nginx を再起動し、設定を反映させましょう。
 ```shell
