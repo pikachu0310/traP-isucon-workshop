@@ -1,7 +1,7 @@
 # ベンチマーカーを動して、計測しよう
 
 ## ベンチマーカーが動くように、設定をする。
-[PISCONマニュアルページ](https://piscon.trap.jp/manual)によると、サーバー内の`/etc/nginx/sites-available/isucondition.conf`ファイルを書き換える必要があります。  
+[PISCONドキュメントページ](https://piscon.trap.jp/docs)によると、サーバー内の`/etc/nginx/sites-available/isucondition.conf`ファイルを書き換える必要があります。  
 ファイル編集コマンド`nano`や`vim`を使っても良いのですが、あまりここで躓いて欲しくないので、以下のコマンドを用意しました。サーバーに入って、以下のコマンドを実行してください。
 ```shell
 sudo bash -c 'cat <<EOL > /etc/nginx/sites-available/isucondition.conf
