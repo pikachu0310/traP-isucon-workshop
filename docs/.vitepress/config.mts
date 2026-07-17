@@ -120,6 +120,11 @@ function generateSidebar(
               text: '実習編-AI Agentと走る',
               items: subDirItems,
             })
+          } else if (file == 'chapter-6') {
+            priorityItems.push({
+              text: '応用編-AI Agentと1位を狙う',
+              items: subDirItems,
+            })
           } else {
             priorityItems.push({
               text: file,
