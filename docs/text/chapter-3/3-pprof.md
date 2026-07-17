@@ -1,4 +1,4 @@
-# pprof (fgprof)
+# pprof
 
 ## pprofとは
 
@@ -26,7 +26,7 @@ import _ "net/http/pprof" // [!code ++]
 ```go
 func main() {
 	go func() { // [!code ++]
-		log.Println(http.ListenAndServe("localhost:6060", nil)) // [!code ++]
+		fmt.Println(http.ListenAndServe("localhost:6060", nil)) // [!code ++]
 	}() // [!code ++]
 
 	// 後略
@@ -50,22 +50,21 @@ git push
 まず、サーバー上のGitリポジトリのルートで、`git pull` を行い、ソースコードの変更をサーバー上のファイルに反映させます。
 
 ```shell
-cd ~/isucari
+cd ~/
 git pull
 ```
 
 次に、アプリケーションのビルドを行います。
 
-<!-- TODO: 正しいディレクトリとバイナリ名が分からないので書いて -->
 ```shell
-cd ~/isucon/webapp/go
-make isucari
+cd ~/webapp/go
+go build -o isucondition main.go
 ```
 
 最後に、アプリケーションを再起動して、変更を反映させましょう。
 
 ```shell
-sudo systemctl restart isucari.golang.service
+sudo systemctl restart isucondition.go.service
 ```
 
 ## アプリケーションの計測
@@ -81,10 +80,10 @@ pprofでアプリケーションを計測します。
 `htop` でCPU使用率を監視し、一番負荷がかかるタイミングを見極めて、計測を行いましょう。
 
 ```shell
-go tool pprof http://localhost:6060/debug/pprof/profile?seconds=30
+go tool pprof http://localhost:6060/debug/pprof/profile?seconds=60
 ```
 
-計測が終わると、`Saved profile in /home/isucon/pprof/pprof.samples.cpu.001.pb.gz` のような出力が出ます。
+計測が終わると、`Saved profile in /home/isucon/pprof/pprof.isucondition.samples.cpu.001.pb.gz` のような出力が出ます。
 このファイルに、今回の計測結果が記録されています。
 ファイル名を覚えておきましょう。
 
@@ -97,7 +96,7 @@ go tool pprof http://localhost:6060/debug/pprof/profile?seconds=30
 成功すると、手元のブラウザで `localhost:6070` にアクセスすると、サーバー上の `localhost:6070` にアクセスが可能になります。
 
 ```shell
-ssh -L 6070:localhost:6070 isucon9
+ssh -L 6070:localhost:6070 isucon1
 ```
 
 可視化に必要なライブラリがあるため、次のコマンドでサーバー上にインストールします。
@@ -107,15 +106,15 @@ sudo apt install graphviz
 ```
 
 次のコマンドで、サーバー上の `localhost:6070` で可視化Webサーバーを立ち上げましょう。
-`/home/isucon/pprof/pprof.isucari.samples.cpu.001.pb.gz` の部分を、可視化したい計測結果のファイル名に置き換えてください。
+`/home/isucon/pprof/pprof.isucondition.samples.cpu.001.pb.gz` の部分を、可視化したい計測結果のファイル名に置き換えてください。
 
 ```shell
-go tool pprof -http=localhost:6070 /home/isucon/pprof/pprof.isucari.samples.cpu.001.pb.gz
+go tool pprof -http=localhost:6070 /home/isucon/pprof/pprof.isucondition.samples.cpu.001.pb.gz
 ```
 
 手元のブラウザで `http://localhost:6070` にアクセスして、「pprof」のページが表示されれば成功です。
 
-:::tip 楽に計測・可視化するために
+:::tip 楽に計測・可視化するために(発展)
 
 以上の手順を毎回やっていては、手間がかかりますね。
 ISUCON本番では時間が足りなくなるので、毎回計測の際に叩くコマンドをシェルスクリプトやMakefile、Taskfileなどにまとめておくと良いでしょう。
@@ -143,39 +142,13 @@ pprof-check:
 
 また、左上の「View」から「Flame Graph」を選ぶと、Flame Graphと呼ばれる形式の表示になります。
 表示方法が異なりますが、可視化している情報はトップのGraph表示と同じです。
-見やすい方を使いましょう。
+見やすい方を使いましょう。Flame Graph を見ることが多いかなと思います。  
 
-![](3-img/img-2.png)
+![](3-img/img_2.png)
 
 ## ボトルネックを発見する
-以下にネタバレを含みます。
-
-## (ネタバレ) 今回のケースは特別で、`getTransactions`のボトルネックはpprofでは計測できない
-今回は、pprofを見ると、`alp`で1番ボトルネックだった`getTransactions`が、全然ボトルネックに見えません。  
-これが今回のひっかけで、pprofはCPUの使用時間を記録しているのですが、実は`getTransactions`で起こっているのは、CPUを使わない「待機」だったのです。
-ではどう計測すればよかったのかというと、`fgprof`というツールを使います。これはpprofとは違い、待機を含む実世界の時間全てを記録できます。  
-[fgprof](https://github.com/felixge/fgprof)  
-導入方法は以下の通りにしてください。  
-https://github.com/pikachu0310/isucon-workshop-2023/compare/2710...2610  
-扱い方は`pprof`とほとんど同じで、以下のようにして計測します。  
-`go tool pprof http://localhost:6060/debug/fgprof/profile?seconds=60`
-`go tool pprof -http=localhost:6070 /home/isucon/pprof/pprof.samples.cpu.001.pb.gz`  
-fgprofのページを開いたら、左上から`VIEW`を選らび、`Flame Graph`を選びましょう。待機時間をカウントしてるので、関係ない奴が多数あります。ここでは、`http.(*conn).serve`をクリックしてください。  
-![](4-img/img.png)
-![](4-img/img-2.png)
-`main.getTransactions`が2/3を占めています！`VIEW`から`Top`を選び、`main.getTransactions`をクリックし、`VIEW`から`Source`を選びましょう。  
-http://localhost:6070/ui/source?f=main%5C.getTransactions このリンクからでも行けると思います。  
-`getTransactions`のソースコードが表示され、各行でどのくらいの時間がかかっているかが表示されました。  
-![](4-img/img-3.png)
-一番時間がかかっている場所を探すと、993行目に`8.37mins`という、目を疑う単位が書いてあります。  
-`ssr, err := APIShipmentStatus(...`の部分です。  
-さらに`APIShipmentStatus`の中身を見てみましょう。  
-http://localhost:6070/ui/source?f=main%5C.APIShipmentStatus  
-`res, err := http.DefaultClient.Do(req)`という箇所がボトルネックだと発見できると思います。  
-これで`getTransactions`が遅い原因がようやく特定できました！  
-これは具体的には、ベンチマーカーに対してリクエストを送り、レスポンスが返ってくるまで待機するということが行われています。  
-これこそがボトルネックだったのです。`getTransactions`が遅い理由の99.99%はココです。  
-ようやくボトルネックが見つかったところで、これはどう改善すればよいのでしょうか。この改善は少し初心者には難しいです。  
-Goの並列処理`Gorutine`を使って並列化するのが最も簡単な改善方法でしょう。  
-やり方はISUCON9の予選突破者のwriteupを参考にしてみてください。
-
+Flame Graph を見ると、main.getTrend が一番横に大きく、CPU時間を使っていることがわかります。  
+また、main.getIsuCondition や main.postIsuCondition もそれなりにCPU時間を使っていることがわかります。  
+これで、今現在は main.getTrend がボトルネックになっていそうだということが分かり、他にも改善の余地があることがわかりました！  
+ここまでで、計測に必要なツールの使い方が分かりました！  
+次の章では、実際に 計測、ボトルネックの発見、改善 を行いましょう！

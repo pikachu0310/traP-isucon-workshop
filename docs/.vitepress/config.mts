@@ -110,9 +110,9 @@ function generateSidebar(
               text: '実習編-本格的に計測,改善する',
               items: subDirItems,
             })
-          } else if (file == 'chapter-5') {
+          } else if (file == 'chapter-4') {
             priorityItems.push({
-              text: 'メモや有用なリンクとか',
+              text: '知見や有用なリンクとか',
               items: subDirItems,
             })
           } else {
