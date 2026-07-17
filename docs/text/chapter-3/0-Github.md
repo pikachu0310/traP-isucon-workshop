@@ -170,7 +170,7 @@ git clone 自分のレポジトリURL
 [ISUCON11 予選当日マニュアル](https://github.com/isucon/isucon11-qualify/blob/main/docs/manual.md#isucondition-%E3%81%B8%E3%81%AE%E3%83%AD%E3%82%B0%E3%82%A4%E3%83%B3)
 [ISUCONDITION アプリケーションマニュアル](https://github.com/isucon/isucon11-qualify/blob/main/docs/isucondition.md)
 [ISUCON11 予選レギュレーション](https://isucon.net/archives/55854734.html)
-[PISCON Portal](https://piscon.trap.jp/dashboard)
+[PISCON Portal](https://piscon.trap.jp/)
 [ISUCON初心者向け講習会資料](https://isucon-workshop.trap.show/)
 
 ## アプリのディレクトリ構造
