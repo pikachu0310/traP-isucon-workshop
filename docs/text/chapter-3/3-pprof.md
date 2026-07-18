@@ -94,9 +94,10 @@ go tool pprof http://localhost:6060/debug/pprof/profile?seconds=60
 手元のブラウザで計測結果を見るため、まずはSSHの「Local Port Forward」を行います。
 サーバーにSSHで接続する際、`-L 6070:localhost:6070` オプションを加えます。
 成功すると、手元のブラウザで `localhost:6070` にアクセスすると、サーバー上の `localhost:6070` にアクセスが可能になります。
+次のコマンドの `パブリックIPアドレス` は、自分のサーバーのパブリックIPアドレスに置き換えてください。
 
 ```shell
-ssh -L 6070:localhost:6070 isucon1
+ssh -L 6070:localhost:6070 isucon@パブリックIPアドレス
 ```
 
 可視化に必要なライブラリがあるため、次のコマンドでサーバー上にインストールします。
